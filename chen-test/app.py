@@ -1,13 +1,29 @@
-from flask import Flask
+from flask import  Flask
+from flask_sqlalchemy import SQLAlchemy
+from flask import  render_template
+import config
 
-#应用入口
+
 app = Flask(__name__)
+app.config.from_object(config)
+db = SQLAlchemy(app)
 
-#url对应视图
+app.config['SECRET_KEY'] = 'hard to guess string'
+
+
+class SysMonitInfo(db.Model):
+    """采集Linux系统的数据"""
+    __tablename__ = 'sysmonitinfo'
+
+    id = db.Column(db.Integer, primary_key=True)
+    cpu1mload = db.Column(db.String(10))
+    cpu5mload = db.Column(db.String(10))
+    meminfo = db.Column(db.String(10))
+
+
 @app.route('/index')
 def index():
-    return '<h1>hello world</h1>'
+    return render_template('index.html')
 
 if __name__ == '__main__':
-    app.run()
-
+    app.run(host='localhost',port='80',debug=True)
