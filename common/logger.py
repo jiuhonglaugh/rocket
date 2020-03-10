@@ -3,9 +3,9 @@
 
 import logging
 
-from utils.configUtil import configUtil
-from utils import time_util
-from utils import fileUtil
+from common.configUtil import configUtil
+from common import time_util
+from common import fileUtil
 
 configUtil = configUtil('application.properties')
 '''

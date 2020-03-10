@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 # -*- encoding:utf-8 -*-
 import xml.etree.ElementTree as ET
-from utils import file_util
+from common import file_util
 
 def getXml(fileName, lable):
     filePath = file_util.getConfigPath() + '/{fileName}'.format(fileName=fileName)

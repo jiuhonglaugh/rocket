@@ -4,7 +4,7 @@ import sys
 
 sys.path.append('/zywa/aoam')
 import subprocess as sbp
-from utils.logger import logger
+from common.logger import logger
 
 log = logger()
 

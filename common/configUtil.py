@@ -3,7 +3,7 @@
 
 import configparser
 
-from utils import fileUtil
+from common import fileUtil
 
 
 class configUtil:

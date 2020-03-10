@@ -2,8 +2,8 @@
 # -*- encoding:utf-8 -*-
 
 import sys
-from utils.configUtil import configUtil
-from utils.logger import logger
+from common.configUtil import configUtil
+from common.logger import logger
 
 dataBaseList = ['mysql', 'oracle']
 parameter = ['db.type', 'db.driver', 'db.host', 'db.user', 'db.passwd', 'db.name']
