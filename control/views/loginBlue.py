@@ -12,17 +12,20 @@ log = Logger(loggername='loginBlue')
 
 @login_blue.route('/')
 def default():
-    # username = session.get('username')
-    # if username is None:
-    #     return render_template('login.html', form=LoginForm())
+    username = session.get('username')
+    if username is None:
+        return render_template('login.html', form=LoginForm())
     return render_template('index.html')
 
+@login_blue.route('/test')
+def test():
+    return render_template('index.html')
 
 @login_blue.route('/index')
 def index():
     username = session.get('username')
     if username is None:
-        return render_template('login.html',form=LoginForm())
+        return render_template('login.html', form=LoginForm())
     return render_template('index.html')
 
 
@@ -42,20 +45,19 @@ def login():
                 log.warn('{} 用户不存在'.format(username))
                 result['code'] = 400
                 result['data'] = '用户不存在'
-            elif user.verify_password(password=password):
+            elif not user.verify_password(password=password):
+                log.warn('用户 {} 登录失败'.format(username))
+                result['code'] = 300
+                result['data'] = '密码错误'
+            else:
                 log.info('用户 {} 登录成功'.format(username))
                 session.permanent = True
                 session['username'] = user.name
                 result['code'] = 200
                 result['data'] = '登陆成功'
-                return redirect(url_for('index'))
-            else:
-                log.warn('用户 {} 登录失败'.format(username))
-                result['code'] = 300
-                result['data'] = '密码错误'
+                return redirect('test')
             return jsonify(result)
         return render_template('login.html', form=form)
-
 
 @login_blue.route('/logout/')
 def logout():
