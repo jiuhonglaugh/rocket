@@ -2,13 +2,13 @@
 # -*- encoding:utf-8 -*-
 
 import sys
-from common.configUtil import configUtil
-from common.logger import logger
+from common.ConfigUtil import ConfigUtil
+from common.Logger import Logger
 
 dataBaseList = ['mysql', 'oracle']
 parameter = ['db.type', 'db.driver', 'db.host', 'db.user', 'db.passwd', 'db.name']
-dicts = configUtil('application.properties').getDict('database')
-log = logger('dbUtil')
+dicts = ConfigUtil('application.properties').getDict('database')
+log = Logger('dbUtil')
 
 
 def checkParameter():

@@ -4,9 +4,9 @@ import sys
 
 sys.path.append('/zywa/aoam')
 import subprocess as sbp
-from common.logger import logger
+from common.Logger import Logger
 
-log = logger()
+log = Logger()
 
 
 def check_call(cmd):

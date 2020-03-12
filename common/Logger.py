@@ -3,17 +3,17 @@
 
 import logging
 
-from common.configUtil import configUtil
-from common import time_util
+from common.ConfigUtil import ConfigUtil
+from common import timeUtil
 from common import fileUtil
 
-configUtil = configUtil('application.properties')
+configUtil = ConfigUtil('application.properties')
 '''
 loggername 参数最好指定，如果不指定可能会导致日志重复输出
 '''
 
 
-class logger:
+class Logger:
     def __init__(self, loggername='default'):
         conf = configUtil.getDict('logger')
 
@@ -64,10 +64,10 @@ def sP(oldPath, symbol='/'):
     args = oldPath.split(symbol)
     fileName = args[-1]
     fileLen = len(args[-1])
-    filepath = oldPath[:-fileLen] + time_util.getTime('%Y-%m-%d') + '-' + fileName
+    filepath = oldPath[:-fileLen] + timeUtil.getTime('%Y-%m-%d') + '-' + fileName
     return filepath
 
 
 if __name__ == '__main__':
-    log = logger()
+    log = Logger()
     log.info("asd")

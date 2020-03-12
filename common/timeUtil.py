@@ -2,6 +2,7 @@
 # -*- coding:utf-8 -*-
 
 import time
+import datetime
 
 
 def getTime(format='%Y-%m-%d %H:%M:%S'):
@@ -10,6 +11,11 @@ def getTime(format='%Y-%m-%d %H:%M:%S'):
 
 def sleep(mm):
     time.sleep(mm)
+
+
+def sessionTimeOut(minutes):
+    return datetime.timedelta(minutes=minutes)
+
 
 if __name__ == '__main__':
     print(getTime(format='%Y-%m-%d'))

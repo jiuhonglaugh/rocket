@@ -6,7 +6,7 @@ import configparser
 from common import fileUtil
 
 
-class configUtil:
+class ConfigUtil:
     def __init__(self, confName):
         configPath = fileUtil.repairPath(fileUtil.getConfigPath())
         self.configPath = configPath + confName
