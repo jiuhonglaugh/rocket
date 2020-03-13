@@ -5,8 +5,8 @@ import time
 import datetime
 
 
-def getTime(format='%Y-%m-%d %H:%M:%S'):
-    return time.strftime(format, time.localtime(time.time()))
+def getTime(format='%Y-%m-%d %H:%M:%S', reduce=0):
+    return time.strftime(format, time.localtime(time.time() - reduce))
 
 
 def sleep(mm):
@@ -18,4 +18,5 @@ def sessionTimeOut(minutes):
 
 
 if __name__ == '__main__':
-    print(getTime(format='%Y-%m-%d'))
+    print(time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())))
+    print(time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time() - 10)))

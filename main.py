@@ -6,7 +6,6 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_wtf import CsrfProtect
 from common.dbUtil import getDBURI
 from common import timeUtil
-
 db = SQLAlchemy()
 app = Flask(__name__)
 
@@ -21,7 +20,12 @@ class Config:
 
 def reisterBluePrint(app):
     from control.views.loginBlue import login_blue
+    from control.views.hostBlue import hostInfo_blue
+    from control.views.manager import manager_blue
     app.register_blueprint(login_blue, ull_prefix='/')
+    app.register_blueprint(hostInfo_blue, ull_prefix='/host')
+    app.register_blueprint(manager_blue, ull_prefix='/host')
+
 
 
 def createApp():

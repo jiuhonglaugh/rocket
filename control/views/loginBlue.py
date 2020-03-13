@@ -2,7 +2,7 @@
 # -*- coding:utf-8 -*-
 from flask import Blueprint, render_template, request, url_for, jsonify, session, g
 from werkzeug.utils import redirect
-from model.User import User
+from model.UserModel import User
 from common.form import LoginForm
 from common.Logger import Logger
 
@@ -12,21 +12,15 @@ log = Logger(loggername='loginBlue')
 
 @login_blue.route('/')
 def default():
-    username = session.get('username')
-    if username is None:
-        return render_template('login.html', form=LoginForm())
-    return render_template('index.html')
+    return render_template('login.html', form=LoginForm())
 
-@login_blue.route('/test')
-def test():
-    return render_template('index.html')
 
 @login_blue.route('/index')
 def index():
     username = session.get('username')
     if username is None:
         return render_template('login.html', form=LoginForm())
-    return render_template('index.html')
+    return render_template('index.html', username=username)
 
 
 @login_blue.route('/login', methods=['GET', 'POST'])
@@ -51,16 +45,16 @@ def login():
                 result['data'] = '密码错误'
             else:
                 log.info('用户 {} 登录成功'.format(username))
-                session.permanent = True
+                # session.permanent = True
                 session['username'] = user.name
                 result['code'] = 200
                 result['data'] = '登陆成功'
-                return redirect('test')
             return jsonify(result)
         return render_template('login.html', form=form)
 
+
 @login_blue.route('/logout/')
 def logout():
-    session['user_id'] = None
+    session['username'] = None
     g.user = None
-    return redirect(url_for('login'))
+    return redirect(url_for('login.index'))
