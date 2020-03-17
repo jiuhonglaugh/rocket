@@ -2,7 +2,6 @@
 # -*- coding:utf-8 -*-
 
 import configparser
-
 from common import fileUtil
 
 
@@ -45,5 +44,3 @@ class ConfigUtil:
         for tuple in list:
             dt[tuple[0]] = tuple[1]
         return dt
-
-

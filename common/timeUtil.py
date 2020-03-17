@@ -17,6 +17,8 @@ def sessionTimeOut(minutes):
     return datetime.timedelta(minutes=minutes)
 
 
+
+
+
 if __name__ == '__main__':
-    print(time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())))
-    print(time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time() - 10)))
+    print(getTime(reduce=10) < getTime())
