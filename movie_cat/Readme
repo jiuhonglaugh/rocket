@@ -1,0 +1,21 @@
+####项目规划
+application.py 全局变量类
+common  开发类库文件
+    libs
+    models
+config  配置文件
+controllers MVC中的C层文件夹,将数据传递给视图
+    index.py
+manager.py  入口（启动）文件
+requirement.txt python扩展列表
+static  静态文件css,js,images存放文件夹
+templates 模板存放文件夹
+    common
+    index.html
+www.py  路由核心文件
+
+
+####请求过程
+1、用户从浏览器输入访问地址
+2、请求到达flask核心对象app
+3、核心对象url_mapping根据路由规则筛选视图
