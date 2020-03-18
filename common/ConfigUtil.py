@@ -2,11 +2,10 @@
 # -*- coding:utf-8 -*-
 
 import configparser
-
 from common import fileUtil
 
 
-class configUtil:
+class ConfigUtil:
     def __init__(self, confName):
         configPath = fileUtil.repairPath(fileUtil.getConfigPath())
         self.configPath = configPath + confName
@@ -45,5 +44,3 @@ class configUtil:
         for tuple in list:
             dt[tuple[0]] = tuple[1]
         return dt
-
-
