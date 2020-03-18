@@ -38,13 +38,14 @@
         <thead>
         <tr>
             <th>ID</th>
-            <th>ONLINE</th>
+            <th>STATUS</th>
             <th>主机名</th>
-            <th>服务器系统</th>
             <th>IP</th>
             <th>CPU核心数</th>
             <th>内存</th>
             <th>磁盘</th>
+            <th>服务器系统</th>
+            <th>最后上线时间</th>
         </tr>
         </thead>
         <tbody id="aaa">
@@ -54,32 +55,32 @@
             <!--            <td>{{data.online}}</td>-->
             <td>{{data.status}}</td>
             <td>
-                <a href="/host/hostInfo?hostname={{data.host_name}}" name="">{{data.host_name}}</a>
+                <a href="/host/hostInfo?hostId={{data.id}}">{{data.host_name}}</a>
             </td>
-            <!--            <td>{{data.os}}</td>-->
-            <td>rehat-7.7</td>
             <td>{{data.host_ip}}</td>
             <td>{{data.host_total_cpu}}</td>
             <td>{{data.host_total_memory}}</td>
             <td>{{data.host_total_disk}}</td>
+            <td>{{data.host_os}}</td>
+            <td>{{data.update_time}}</td>
         </tr>
         {% endfor %}
         </tbody>
     </table>
     <div style="text-align: center;">
         <div id="pager" class="pager clearfix">
-<!--            <a class="pg-first" page-id="1"></a>-->
-<!--            <a class="pg-prev" page-id="0" disabled="true"></a>-->
-<!--            <span class="current" page-id="1">1</span>-->
-<!--            <a page-id="2">2</a>-->
-<!--            <a page-id="2">3</a>-->
-<!--            <a page-id="2">4</a>-->
-<!--            <a page-id="2">5</a>-->
-<!--            <a page-id="2">6</a>-->
-<!--            <a page-id="2">7</a>-->
-<!--            <span class="els">...</span>-->
-<!--            <a class="pg-next" page-id="2"></a>-->
-<!--            <a class="pg-last" page-id="10"></a>-->
+            <!--            <a class="pg-first" page-id="1"></a>-->
+            <!--            <a class="pg-prev" page-id="0" disabled="true"></a>-->
+            <!--            <span class="current" page-id="1">1</span>-->
+            <!--            <a page-id="2">2</a>-->
+            <!--            <a page-id="2">3</a>-->
+            <!--            <a page-id="2">4</a>-->
+            <!--            <a page-id="2">5</a>-->
+            <!--            <a page-id="2">6</a>-->
+            <!--            <a page-id="2">7</a>-->
+            <!--            <span class="els">...</span>-->
+            <!--            <a class="pg-next" page-id="2"></a>-->
+            <!--            <a class="pg-last" page-id="10"></a>-->
         </div>
     </div>
 </div>
@@ -98,13 +99,13 @@ $("#pager").zPager({
 		alert(data);
 	},
 });
-       <!-- var _hmt = _hmt || [];
-        (function() {
-          var hm = document.createElement("script");
-          hm.src = "https://hm.baidu.com/hm.js?b393d153aeb26b46e9431fabaf0f6190";
-          var s = document.getElementsByTagName("script")[0];
-          s.parentNode.insertBefore(hm, s);
-        })();
+<!--        var _hmt = _hmt || [];-->
+<!--        (function() {-->
+<!--          var hm = document.createElement("script");-->
+<!--          hm.src = "https://hm.baidu.com/hm.js?b393d153aeb26b46e9431fabaf0f6190";-->
+<!--          var s = document.getElementsByTagName("script")[0];-->
+<!--          s.parentNode.insertBefore(hm, s);-->
+<!--        })();-->
 </script>
 </body>
 </html>

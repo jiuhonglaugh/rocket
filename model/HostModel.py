@@ -1,5 +1,7 @@
-from werkzeug.security import generate_password_hash, check_password_hash
-from main import db
+#!/usr/bin/env python
+# -*- coding:utf-8 -*-
+
+from AppInit import db
 from flask_login import UserMixin
 
 
@@ -15,7 +17,6 @@ class HostInfoModel(db.Model, UserMixin):
     host_used_memory = db.Column(db.Integer)
     host_total_cpu = db.Column(db.Integer)
     host_necard_kind = db.Column(db.String(255))
-    status = db.Column(db.String(255))
     update_time = db.Column(db.String(255))
 
     def __init__(self, host_name, host_ip, host_total_disk, host_root_remain_disk, host_total_memory, host_free_memory,
@@ -30,26 +31,9 @@ class HostInfoModel(db.Model, UserMixin):
         self.host_total_cpu = host_total_cpu
         self.host_necard_kind = host_necard_kind
 
-    def setStatus(self, status):
-        self.status = status
-
     @staticmethod
-    def query_by_hostsName(id):
+    def query_by_hostsID(id):
         return HostInfoModel.query.filter(HostInfoModel.id == id).first()
-
-    @property
-    def pwd(self):
-        raise AttributeError(u'密码不可读')
-
-    @pwd.setter
-    def pwd(self, password):
-        self.password = generate_password_hash(password)
-
-    def verify_password(self, password):
-        if self.password == password:
-            return True
-        else:
-            return check_password_hash(self.password, password)
 
     @staticmethod
     def all():

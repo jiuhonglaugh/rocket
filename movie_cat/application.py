@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 from flask import Flask
-from flask_script import Manager
 from flask_sqlalchemy import SQLAlchemy
 import os
 app = Flask( __name__ )

@@ -4,10 +4,10 @@ fnSearchCore()
 fnSearchNet()
 fnSearchDisk()
 });
-//interval1=setInterval(fnSearchMem,2000);
-//interval1=setInterval(fnSearchCore,2000);
-//interval1=setInterval(fnSearchNet,2000);
-//interval1=setInterval(fnSearchDisk,2000);
+interval1=setInterval(fnSearchMem,3000);
+interval1=setInterval(fnSearchCore,3000);
+interval1=setInterval(fnSearchNet,3000);
+interval1=setInterval(fnSearchDisk,3000);
 
 function fnSearchMem(){
     var myChart = echarts.init(document.getElementById('mem'));
