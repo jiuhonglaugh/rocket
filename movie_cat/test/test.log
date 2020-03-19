@@ -12,3 +12,6 @@
 
 
 2020-03-18 09:57:13,076 - __main__ - WARNING - test warning log
+2020-03-18 14:44:07,138 - __main__ - INFO - start print log
+2020-03-18 14:44:07,138 - __main__ - WARNING - test warning log
+2020-03-18 14:44:07,138 - __main__ - INFO - end print log

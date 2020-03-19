@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 format = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger.setLevel(level=logging.INFO)
 #设置文件日志
-hander = logging.FileHandler(r'D:\JetBrainsPyCharm2019\pyNameSpace\py\test\movie_cat\common\logs/test.log')
+hander = logging.FileHandler(r'D:\JetBrainsPyCharm2019\pyNameSpace\rocket\movie_cat\test\test.log')
 hander.setLevel(logging.INFO)
 hander.setFormatter(format)
 logger.addHandler(hander)
