@@ -12,3 +12,5 @@ app.config.from_object(AppConfig.Config)
 csrf = CsrfProtect()
 csrf.init_app(app)
 db.init_app(app)
+
+

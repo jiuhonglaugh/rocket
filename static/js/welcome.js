@@ -4,10 +4,10 @@ fnSearchCore()
 fnSearchNet()
 fnSearchDisk()
 });
-interval1=setInterval(fnSearchMem,3000);
-interval1=setInterval(fnSearchCore,3000);
-interval1=setInterval(fnSearchNet,3000);
-interval1=setInterval(fnSearchDisk,3000);
+//interval1=setInterval(fnSearchMem,3000);
+//interval1=setInterval(fnSearchCore,3000);
+//interval1=setInterval(fnSearchNet,3000);
+//interval1=setInterval(fnSearchDisk,3000);
 
 function fnSearchMem(){
     var myChart = echarts.init(document.getElementById('mem'));
@@ -26,7 +26,7 @@ function fnSearchMem(){
 
     function getData() {
          $.ajax({
-            url:'/mem',
+            url:'/host/mem',
             data:{},
             type:'GET',
             async:false,
@@ -77,7 +77,7 @@ function fnSearchCore(){
 
     function getData() {
          $.ajax({
-            url:'/core',
+            url:'/host/core',
             data:{},
             type:'GET',
             async:false,
@@ -143,7 +143,7 @@ function fnSearchDisk(){
 
     function getData() {
          $.ajax({
-            url:'/disk',
+            url:'/host/disk',
             data:{},
             type:'GET',
             async:false,
@@ -194,7 +194,7 @@ function fnSearchNet(){
 
     function getData() {
          $.ajax({
-            url:'/net',
+            url:'/host/net',
             data:{},
             type:'GET',
             async:false,

@@ -1,7 +1,5 @@
 from common import timeUtil
 from common.dbUtil import getDBURI
-
-
 class Config:
     SECRET_KEY = 'hard to guess string'
     '''

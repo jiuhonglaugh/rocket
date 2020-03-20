@@ -3,6 +3,7 @@
 
 import RegisterBlueViews
 from common import ConfigUtil
+from control.views import errorPage
 
 config = ConfigUtil.ConfigUtil('application.properties').getDict('rocket')
 from AppInit import app

@@ -3,17 +3,24 @@ from wtforms import StringField, SubmitField,PasswordField,BooleanField,IntegerF
 from wtforms.validators import DataRequired,Required,Length,Email,InputRequired
 
 
-class NameForm(FlaskForm):
-    username = StringField('What is your name?', validators=[DataRequired()])
-    password = StringField('What is your name?', validators=[DataRequired()])
-    submit = SubmitField('Submit')
 
+class SshForm(FlaskForm):
+	host = StringField('host',validators=[DataRequired()])
+	port = PasswordField('port', validators=[DataRequired()])
+	username = StringField('username', validators=[DataRequired()])
+	pwd = StringField('pwd', validators=[DataRequired()])
+	submit = SubmitField('Log in SSH')
 
 class LoginForm(FlaskForm):
 	username = StringField('username',validators=[DataRequired()])
 	password = PasswordField('passowrd', validators=[DataRequired()])
 	remember_me = BooleanField('remember me', default=False)
 	submit = SubmitField('Log in')
+
+class NameForm(FlaskForm):
+    username = StringField('What is your name?', validators=[DataRequired()])
+    password = StringField('What is your name?', validators=[DataRequired()])
+    submit = SubmitField('Submit')
 
 class LinuxServerForm(FlaskForm):
 	"""服务器信息表单"""
