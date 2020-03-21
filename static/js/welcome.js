@@ -1,37 +1,62 @@
-var dt = {}
-var arrs = ['cpu', 'mem', 'net', 'disk']
-$(document).ready(function(){
-    var arr = [];
-    $.each($('input:checkbox:checked'),function(){
-        arr.push($(this).val())
-        });
-    var time = $("#love5").val() * 1000
-    start(arr,time)
-});
-$("#love5").mouseout(function(){
-    var arr = [];
-  	$.each($('input:checkbox:checked'),function(){
-        arr.push($(this).val())
-        });
-    var time = $("#love5").val() * 1000
-    start(arr,time)
-});
 
-$("#love1,#love2,#love3,#love4").click(function(){
+var arrs = ['cpu', 'mem', 'net', 'disk']
+var cpuId = null
+var memId = null
+var netId = null
+var diskId = null
+/**
+    获取所有 checkbox 的值
+*/
+function getCheckBoxs(){
     var arr = [];
     $.each($('input:checkbox:checked'),function(){
         arr.push($(this).val())
         });
-        var time = $("#love5").val() * 1000
-        start(arr,time)
+    return arr;
+    }
+
+/**
+    获取定时刷新的值
+*/
+function getTime(){
+    var r= /^\+?[0-9][0-9]*$/;
+    time = $("#love5").val().trim()
+    if (!r.test(time) || time < 1 ){
+        time = 5
+        }
+    return time * 1000
+    }
+/**
+    刷新或第一次进入页面时
+    立即展示数据并设置定时器
+*/
+$(document).ready(function(){
+    refresh(getCheckBoxs(),getTime())
+    });
+/**
+    设置定时器刷新时间鼠标离开
+    input 输入框时刷新定时器
+*/
+$("#love5").mouseout(function(){
+    refresh(getCheckBoxs(),getTime())
+    });
+/**
+    点击checkBox时隐藏或开启对应的模块
+    同时刷新定时器
+*/
+$("#love1,#love2,#love3,#love4").click(function(){
+    refresh(getCheckBoxs(),getTime())
     });
 
-function start(arr,refreshTime){
+/**
+    刷新展示数据和刷新定时器
+*/
+function refresh(arr,refreshTime){
+    clearInterval(cpuId)
+    clearInterval(memId)
+    clearInterval(netId)
+    clearInterval(diskId)
     var str = arr.toString()
-    for (var key in dt) {
-　　     var value = dt[key];
-         clearInterval(dt[value]);
-    }
     for (var value of arrs) {
         var num = str.indexOf(value)
         if (num > -1 ){
@@ -39,19 +64,19 @@ function start(arr,refreshTime){
             switch(value) {
                 case 'cpu':
                     fnSearchCore()
-                    dt[value] = setInterval(fnSearchCore,refreshTime);
+                    cpuId = setInterval(fnSearchCore,refreshTime)
                     break;
                 case 'mem':
                     fnSearchMem()
-                    dt[value]=setInterval(fnSearchMem,refreshTime);
+                    memId = setInterval(fnSearchMem,refreshTime)
                     break;
                 case 'net':
                     fnSearchNet()
-                    dt[value]=setInterval(fnSearchNet,refreshTime);
+                    netId = setInterval(fnSearchNet,refreshTime)
                     break;
                 case 'disk':
                     fnSearchDisk()
-                    dt[value]=setInterval(fnSearchDisk,refreshTime);
+                    diskId = setInterval(fnSearchDisk,refreshTime)
                     break;
                 default:
                     alert('error')
@@ -62,7 +87,9 @@ function start(arr,refreshTime){
     }
     arr = []
 }
-
+/**
+    获取 mem 数据并展示
+*/
 function fnSearchMem(){
     var myChart = echarts.init(document.getElementById('mem'));
     var app = {
@@ -111,6 +138,9 @@ function fnSearchMem(){
         })
     };
 }
+/**
+    获取 cpu 数据并展示
+*/
 function fnSearchCore(){
     var myChart = echarts.init(document.getElementById('cpu'));
     var app = {
@@ -172,6 +202,10 @@ function fnSearchCore(){
         })
     };
 }
+
+/**
+    获取 disk 数据并展示
+*/
 function fnSearchDisk(){
     var myChart = echarts.init(document.getElementById('disk'));
     var app = {
@@ -220,6 +254,9 @@ function fnSearchDisk(){
         })
     };
 }
+/**
+    获取 net 数据并展示
+*/
 function fnSearchNet(){
     var myChart = echarts.init(document.getElementById('net'));
     var app = {

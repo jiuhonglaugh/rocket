@@ -1,4 +1,0 @@
-
-pip install flask               1.1.1
-pip install flask_sqlalchemy    2.4.1
-pip install flask_wtf           0.14.3
