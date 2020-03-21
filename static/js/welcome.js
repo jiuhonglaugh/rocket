@@ -1,29 +1,80 @@
+var dt = {}
+var arrs = ['cpu', 'mem', 'net', 'disk']
 $(document).ready(function(){
-fnSearchMem()
-fnSearchCore()
-fnSearchNet()
-fnSearchDisk()
+    var arr = [];
+    $.each($('input:checkbox:checked'),function(){
+        arr.push($(this).val())
+        });
+    var time = $("#love5").val() * 1000
+    start(arr,time)
 });
-//interval1=setInterval(fnSearchMem,3000);
-//interval1=setInterval(fnSearchCore,3000);
-//interval1=setInterval(fnSearchNet,3000);
-//interval1=setInterval(fnSearchDisk,3000);
+$("#love5").mouseout(function(){
+    var arr = [];
+  	$.each($('input:checkbox:checked'),function(){
+        arr.push($(this).val())
+        });
+    var time = $("#love5").val() * 1000
+    start(arr,time)
+});
+
+$("#love1,#love2,#love3,#love4").click(function(){
+    var arr = [];
+    $.each($('input:checkbox:checked'),function(){
+        arr.push($(this).val())
+        });
+        var time = $("#love5").val() * 1000
+        start(arr,time)
+    });
+
+function start(arr,refreshTime){
+    var str = arr.toString()
+    for (var key in dt) {
+　　     var value = dt[key];
+         clearInterval(dt[value]);
+    }
+    for (var value of arrs) {
+        var num = str.indexOf(value)
+        if (num > -1 ){
+            document.getElementById(value).style.display = "block";
+            switch(value) {
+                case 'cpu':
+                    fnSearchCore()
+                    dt[value] = setInterval(fnSearchCore,refreshTime);
+                    break;
+                case 'mem':
+                    fnSearchMem()
+                    dt[value]=setInterval(fnSearchMem,refreshTime);
+                    break;
+                case 'net':
+                    fnSearchNet()
+                    dt[value]=setInterval(fnSearchNet,refreshTime);
+                    break;
+                case 'disk':
+                    fnSearchDisk()
+                    dt[value]=setInterval(fnSearchDisk,refreshTime);
+                    break;
+                default:
+                    alert('error')
+                }
+        }else{
+             document.getElementById(value).style.display = "none";
+        }
+    }
+    arr = []
+}
 
 function fnSearchMem(){
     var myChart = echarts.init(document.getElementById('mem'));
-
     var app = {
         xday:[],
         yvalue:[]
     };
-
     // 发送ajax请求，从后台获取json数据
     $(document).ready(function () {
        getData();
        console.log(app.xday);
        console.log(app.yvalue)
     });
-
     function getData() {
          $.ajax({
             url:'/host/mem',
@@ -61,20 +112,17 @@ function fnSearchMem(){
     };
 }
 function fnSearchCore(){
-    var myChart = echarts.init(document.getElementById('core'));
-
+    var myChart = echarts.init(document.getElementById('cpu'));
     var app = {
         xday:[],
         yvalue:[]
     };
-
     // 发送ajax请求，从后台获取json数据
     $(document).ready(function () {
        getData();
        console.log(app.xday);
        console.log(app.yvalue)
     });
-
     function getData() {
          $.ajax({
             url:'/host/core',
@@ -123,24 +171,19 @@ function fnSearchCore(){
             }
         })
     };
-
-
 }
 function fnSearchDisk(){
     var myChart = echarts.init(document.getElementById('disk'));
-
     var app = {
         xday:[],
         yvalue:[]
     };
-
     // 发送ajax请求，从后台获取json数据
     $(document).ready(function () {
        getData();
        console.log(app.xday);
        console.log(app.yvalue)
     });
-
     function getData() {
          $.ajax({
             url:'/host/disk',
@@ -179,19 +222,16 @@ function fnSearchDisk(){
 }
 function fnSearchNet(){
     var myChart = echarts.init(document.getElementById('net'));
-
     var app = {
         xday:[],
         yvalue:[]
     };
-
     // 发送ajax请求，从后台获取json数据
     $(document).ready(function () {
        getData();
        console.log(app.xday);
        console.log(app.yvalue)
     });
-
     function getData() {
          $.ajax({
             url:'/host/net',
@@ -240,6 +280,4 @@ function fnSearchNet(){
             }
         })
     };
-
-
 }
