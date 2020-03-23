@@ -24,3 +24,9 @@ if __name__ == '__main__':
     # image = get_file_content(filePath)
     # result = client.advancedGeneral(image)
     print(hashlib.md5('123dafd'.encode(encoding='utf-8')).hexdigest())
+    nowpath = '/zywa/fileSystem/sys'
+    path = '/zywa/fileSystem'
+    if not nowpath.startswith(path):
+        print(True)
+    else:
+        print(False)

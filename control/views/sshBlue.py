@@ -3,7 +3,7 @@
 
 import time
 from flask import request, render_template, Blueprint
-from common.form import SshForm
+from forms.form import SshForm
 from control.manager.loginManager import cklogin
 from control.manager.sshManager import sshConnect, inputCommond, getSshStatus
 from AppInit import csrf

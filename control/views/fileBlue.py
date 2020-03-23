@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+# -*- coding:utf-8 -*-
 from flask import request, render_template, send_from_directory, session, make_response, Blueprint
 import time
 import json
@@ -8,27 +10,34 @@ import base64
 import chardet
 import shutil
 import traceback
-from common import extract
+from common import extract, fileUtil
 from common.ConfigUtil import ConfigUtil
 from common.Logger import Logger
+from forms.form import FileForm
 
-workPath = ConfigUtil('application.properties').getDict('fiel-system')
+workPath = ConfigUtil('application.properties').getDict('fiel-system').get('work.path')
+allow = ConfigUtil('application.properties').getDict('fiel-system').get('allow.jump.path', 'false').lower()
+temp = ConfigUtil('application.properties').getDict('fiel-system').get('picture.catalog')
 file_blue = Blueprint('file', __name__)
 log = Logger(loggername='hostBlue')
 sep = os.path.sep  # 当前系统分隔符
 
 
-@file_blue.route('/file', methods=['GET', 'POST'])
+@file_blue.route('/file/index/', methods=['GET', 'POST'])
 def file():
+    form = FileForm(request.form)
+    session['secectList'] = json.dumps(list(set({})))
     return render_template('file.html', nowPath=b64encode_(workPath), sep=b64encode_(sep),
-                           workPath=b64encode_(workPath))
+                           workPath=b64encode_(workPath), form=form)
 
 
 # 返回文件目录
-@file_blue.route('/GetFile', methods=['POST'])
+@file_blue.route('/file/GetFile', methods=['POST'])
 def GetFile():
     try:
         path = b64decode_(request.form['path'])
+        if not path.startswith(workPath) and 'true' != allow:
+            path = workPath
         Files = sorted(os.listdir(path))
         dir_ = []
         file_ = []
@@ -80,7 +89,7 @@ def GetFile():
 
 
 # 下载
-@file_blue.route('/DownFile', methods=['GET', 'POST'])
+@file_blue.route('/file/DownFile', methods=['GET', 'POST'])
 def DownFile():
     fileName = request.values.get('filename')
     fileName = b64decode_(fileName)
@@ -89,7 +98,7 @@ def DownFile():
         if result[0]:
             fileName = result[1]
         else:
-            return json.dumps({'resultCode': 1, 'fileCode': str(e)})
+            return json.dumps({'resultCode': 1, 'fileCode': str("error")})
     response = make_response(
         send_from_directory(os.path.split(fileName)[0], os.path.split(fileName)[1], as_attachment=True))
     response.headers["Content-Disposition"] = "attachment; filename={}".format(
@@ -98,12 +107,13 @@ def DownFile():
 
 
 # 在线编辑
-@file_blue.route('/codeEdit', methods=['GET', 'POST'])
+@file_blue.route('/file/codeEdit', methods=['GET', 'POST'])
 def codeEdit():
     # 前端点击编辑时,传来一个get请求,filename为base64编码的包含路径的文件全名
     fileName = request.values.get('filename', None)
     if fileName:
-        return render_template('iframe/codeEdit.html', filename=fileName)
+        form = FileForm(request.form)
+        return render_template('iframe/codeEdit.html', filename=fileName, form=form)
     # 返回的网页打开后,自动ajax请求该文件内容
     filename = b64decode_(request.form['path'])
     if os.path.getsize(filename) > 2097152: return json.dumps({'resultCode': 1, 'fileCode': '不能在线编辑大于2MB的文件！'});
@@ -129,7 +139,7 @@ def codeEdit():
 
 
 # 保存编辑后的文件
-@file_blue.route('/saveEditCode', methods=['POST'])
+@file_blue.route('/file/saveEditCode', methods=['POST'])
 def saveEditCode():
     editValues = b64decode_(request.form['editValues'])
     fileName = b64decode_(request.form['fileName'])
@@ -143,7 +153,7 @@ def saveEditCode():
 
 
 # 删除
-@file_blue.route('/Delete', methods=['POST'])
+@file_blue.route('/file/Delete', methods=['POST'])
 def Delete():
     fileName = b64decode_(request.values.get('filename'))
     result = delete_(fileName)
@@ -154,7 +164,7 @@ def Delete():
 
 
 # 修改文件权限
-@file_blue.route('/chmod', methods=['POST'])
+@file_blue.route('/file/chmod', methods=['POST'])
 def chmod():
     fileName = b64decode_(request.values.get('filename'))
     power = request.values.get('power')
@@ -167,7 +177,7 @@ def chmod():
 
 
 # 重命名
-@file_blue.route('/RenameFile', methods=['POST'])
+@file_blue.route('/file/RenameFile', methods=['POST'])
 def RenameFile():
     try:
         newFileName = b64decode_(request.values.get('newFileName'))
@@ -185,7 +195,7 @@ def RenameFile():
 
 
 # 创建目录
-@file_blue.route('/CreateDir', methods=['POST'])
+@file_blue.route('/file/CreateDir', methods=['POST'])
 def CreateDir():
     try:
         dirName = b64decode_(request.values.get('dirName'))
@@ -201,7 +211,7 @@ def CreateDir():
 
 
 # 创建文件
-@file_blue.route('/CreateFile', methods=['POST'])
+@file_blue.route('/file/CreateFile', methods=['POST'])
 def CreateFile():
     try:
         fileName = b64decode_(request.values.get('fileName'))
@@ -217,7 +227,7 @@ def CreateFile():
 
 
 # 批量操作
-@file_blue.route('/batch', methods=['POST'])
+@file_blue.route('/file/batch', methods=['POST'])
 def batch():
     batchType = request.values.get('type')
     selectedListBase64 = json.loads(request.values.get('selectedList'))
@@ -250,7 +260,7 @@ def batch():
 
 
 # 图片浏览
-@file_blue.route('/picVisit', methods=['POST'])
+@file_blue.route('/file/picVisit', methods=['POST'])
 def picVisit():
     fileName = request.values.get('filename', None)
     fileName = b64decode_(fileName)
@@ -259,9 +269,10 @@ def picVisit():
     h_pic = img.size[0] / 800
     w_pic = img.size[1] / 800
     size = ((int(img.size[0] / h_pic), int(img.size[1] / h_pic)) if h_pic >= w_pic else (
-    int(img.size[0] / w_pic), int(img.size[1] / w_pic)))
+        int(img.size[0] / w_pic), int(img.size[1] / w_pic)))
     img = img.resize(size, Image.ANTIALIAS)
-    name = os.path.join('temp', os.path.split(fileName)[1])
+
+    name = os.path.join(fileUtil.getHome() + temp, os.path.split(fileName)[1])
     img.save(name)
     with open(name, 'rb') as f:
         imgBase64 = base64.b64encode(f.read()).decode()
@@ -270,7 +281,7 @@ def picVisit():
 
 
 # 上传文件
-@file_blue.route('/UploadFile', methods=['POST'])
+@file_blue.route('/file/UploadFile', methods=['POST'])
 def UploadFile():
     try:
         nowPath = b64decode_(request.values.get('nowPath'))
@@ -284,7 +295,7 @@ def UploadFile():
 
 
 # 解压文件
-@file_blue.route('/Extract', methods=['POST'])
+@file_blue.route('/file/Extract', methods=['POST'])
 def Extract_():
     fileName = b64decode_(request.values.get('filename'))
     extractResult = extract.main(fileName)
@@ -295,11 +306,12 @@ def Extract_():
 
 
 # 将前端多选的文件记录到session
-@file_blue.route('/secectList', methods=['POST'])
+@file_blue.route('/file/secectList', methods=['POST'])
 def secectList():
     types = request.values.get('type')
     value = request.values.get('value')
-    sejson = json.loads(session['secectList'])
+    if 'secectList' in session:
+        sejson = json.loads(session['secectList'])
     if (types == 'in') and (value not in sejson):
         sejson += [value]
         session['secectList'] = json.dumps(list(set(sejson)))
@@ -311,68 +323,6 @@ def secectList():
     elif types == 'get':
         return json.dumps({'resultCode': 0, 'result': session['secectList']})
     return json.dumps({'resultCode': 0, 'result': 'success'})
-
-
-# 新增文件分享
-# @file_blue.route('/creatFileShare', methods=['POST'])
-# def creatFileShare():
-#     filepath = b64decode_(request.values.get("filepath"))
-#     needvie = request.values.get('needvie', 'yes')
-#
-#     sql.creatFileShare(filepath, needvie)
-#     return '0'
-
-
-# # 删除文件分享
-# @file_blue.route('/deleteFileShare', methods=['POST'])
-# def deleteFileShare():
-#     ids = request.values.get('ids')
-#     sql.deleteFileShare(ids)
-#     return '0'
-
-
-# @file_blue.route('/getFileShare', methods=['GET', 'POST'])
-# def getFileShare():
-#     if request.method == 'GET':
-#         return render_template("getFlieShare.html")
-#     sqlResult = sql.getFileShare()
-#     result = []
-#     for i in sqlResult:
-#         filesizes = getFileSize(i[1])
-#         result.append({
-#             'filename': os.path.split(i[1])[1],
-#             'filepath': i[1].replace('\\', '\\\\'),
-#             'ids': i[0],
-#             'vie': i[2],
-#             'filesize': filesizes
-#         })
-#     return json.dumps({'resultCode': 0, 'result': result})
-
-
-# 文件展示页面
-# @file_blue.route('/FileShare', methods=['GET'])
-# def FileShare():
-#     ids = request.values.get('ids')
-#     sqlresult = sql.getShareFileInfo(ids)
-#     return render_template("downFileShare.html", needvie=('yes' if sqlresult[2] != '' else 'no'),
-#                            filename=os.path.split(sqlresult[1])[1], ids=ids, filesize=getFileSize(sqlresult[1]))
-
-
-# 下载
-# @file_blue.route('/DownFileShare', methods=['GET'])
-# def DownFileShare():
-#     ids = request.values.get('ids')
-#     sqlresult = sql.getShareFileInfo(ids)
-#     if request.values.get('filevie', '') == sqlresult[2]:
-#         fileName = sqlresult[1]
-#         response = make_response(
-#             send_from_directory(os.path.split(fileName)[0], os.path.split(fileName)[1], as_attachment=True,
-#                                 attachment_filename='123'))
-#         response.headers["Content-Disposition"] = "attachment; filename={}".format(
-#             os.path.split(fileName)[1].encode().decode('latin-1'))
-#         return response
-#     else:
-#         return '提取码错误！'
 
 
 # --------------API---------------#

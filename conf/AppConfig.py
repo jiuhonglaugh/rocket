@@ -20,3 +20,4 @@ class Config:
     SQLALCHEMY_ECHO = False
     PERMANENT_SESSION_LIFETIME = timeUtil.sessionTimeOut(minutes=15)
     DEBUG = True
+    # DEBUG = False

@@ -4,7 +4,7 @@
 from flask import Blueprint, render_template, request, url_for, session, g
 from werkzeug.utils import redirect
 from control.manager.loginManager import verifyLogin, cklogin
-from common.form import LoginForm
+from forms.form import LoginForm
 from common.Logger import Logger
 
 login_blue = Blueprint('login', __name__)

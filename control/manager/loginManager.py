@@ -3,7 +3,7 @@
 from functools import wraps
 from flask import jsonify, session, render_template
 from common.Logger import Logger
-from common.form import LoginForm
+from forms.form import LoginForm
 from model.UserModel import User
 
 log = Logger(loggername='loginManager')
