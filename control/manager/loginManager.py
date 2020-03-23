@@ -41,6 +41,9 @@ def cklogin(**kw):
             username = session.get('user_name')
             if username is None:
                 return render_template('login.html', form=LoginForm()), 401
+            # else:
+            #     return func(*args, **kwargs)
+
             return render_template('index.html', username=username)
 
         return _ck

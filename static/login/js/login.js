@@ -3,6 +3,7 @@ $(function () {
     //获取用户名和密码:
     username = $('#username').val();
     password = $('#password').val();
+    csrf_token = $('#csrf_token').val();
     if(!username || username == ""){
         showMes("请输入用户名");
         fm.username.focus();
@@ -13,7 +14,10 @@ $(function () {
         fm.password.focus ();
         return false;
     }
-    data = $('#loginform').serialize();
+    data = {'username':username,
+            'password':hex_md5(password),
+            'csrf_token':csrf_token}
+//    data = $('#loginform').serialize();
     $.ajax({
         url: "/login",
         type: "POST",    //提交方式
