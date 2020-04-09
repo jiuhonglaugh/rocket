@@ -1,39 +1,32 @@
-import json
+#!/usr/bin/env python
+# -*- coding:utf-8 -*-
+import hashlib
+from aip import AipImageClassify
 
-import requests
-import base64
+""" 你的 APPID AK SK """
+# APP_ID = '你的 App ID'
+APP_ID = '18988864'
+# API_KEY = '你的 Api Key'
+API_KEY = 'sPWpvq1GvCEeGKWsGFnr4Wve'
+# SECRET_KEY = '你的 Secret Key'
+SECRET_KEY = '8pXnRaoHV8aprWfzyLXMNEm5y41ySLnH'
 
-
-def get_access_token():
-    # 此函数用于获取access_token，返回access_token的值
-    # 此函数被parse_face_pic调用
-    client_id = 'sPWpvq1GvCEeGKWsGFnr4Wve'  # 此变量赋值成自己API Key的值
-    client_secret = '8pXnRaoHV8aprWfzyLXMNEm5y41ySLnH'  # 此变量赋值成自己Secret Key的值
-    auth_url = 'https://aip.baidubce.com/oauth/2.0/token?grant_type=client_credentials&client_id={}&client_secret={}'.format(
-        client_id, client_secret)
-
-    response_at = requests.get(auth_url)
-    json_result = json.loads(response_at.text)
-    access_token = json_result['access_token']
-    return access_token
+client = AipImageClassify(APP_ID, API_KEY, SECRET_KEY)
 
 
-'''
-通用文字识别
-'''
+def get_file_content(filePath):
+    with open(filePath, 'rb') as fp:
+        return fp.read()
+
+
 if __name__ == '__main__':
-
-    request_url = "https://aip.baidubce.com/rest/2.0/ocr/v1/general_basic"
-    # 二进制方式打开图片文件
-    f = open('C:/Users/MAIBENBEN/Desktop/Snipaste_2020-03-22_11-23-26.png', 'rb')
-    img = base64.b64encode(f.read())
-
-    params = {"image": img}
-    access_token = get_access_token()
-    request_url = "{}?access_token={}".format(request_url, access_token)
-    headers = {'content-type': 'application/x-www-form-urlencoded'}
-    response = requests.post(request_url, data=params, headers=headers)
-    if response:
-        result = json.loads(response.text)['words_result']
-        for word in result:
-            print(word)
+    # filePath = 'C:/Users/MAIBENBEN/Desktop/Snipaste_2020-03-22_10-54-46.png'
+    # image = get_file_content(filePath)
+    # result = client.advancedGeneral(image)
+    print(hashlib.md5('123dafd'.encode(encoding='utf-8')).hexdigest())
+    nowpath = '/zywa/fileSystem/sys'
+    path = '/zywa/fileSystem'
+    if not nowpath.startswith(path):
+        print(True)
+    else:
+        print(False)

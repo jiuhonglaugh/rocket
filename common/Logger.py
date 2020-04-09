@@ -4,9 +4,7 @@
 import logging
 
 from common.ConfigUtil import ConfigUtil
-from common import timeUtil
-from common import fileUtil
-
+from common import fileUtil, timeUtil
 configUtil = ConfigUtil('application.properties')
 '''
 loggername 参数最好指定，如果不指定可能会导致日志重复输出

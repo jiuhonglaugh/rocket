@@ -1,44 +1,66 @@
 #!/usr/bin/env python
 # -*- coding:utf-8 -*-
+import json
 import random
+import time
 
-from common import ModelUtil, timeUtil
-from common.numUtil import is_number, randomRandint
-from common.timeUtil import getTime
-from model.HostModel import HostInfoModel
+from common import ModelUtil
+from common.SshUtil import SshUtil
+from common.encryption import b64encode_
+from common.numUtil import randomRandint
+from common.timeUtil import getTime, formatTime
+from control.model.HostModel import HostModel
+from control.model.HostUserModel import HostUserModel
+from common.Logger import Logger
+from main import config
+
+hostManagerConf = config.getDict('fiel-system')
+log = Logger(loggername='hostManager')
 
 
-def getHostsInfo(isLine):
-    result = HostInfoModel.query.with_entities(HostInfoModel.id, HostInfoModel.host_name,
-                                               HostInfoModel.host_total_memory, HostInfoModel.host_ip,
-                                               HostInfoModel.host_total_cpu, HostInfoModel.host_total_disk,
-                                               HostInfoModel.update_time)
+def getHostsDetail(isLine):
+    result = HostModel.getHostInfo()
     dtList = ModelUtil.toDictAll(result)
+    nowTime = formatTime(timestamp=time.time(), reduce=10)
     for i in range(len(dtList) - 1, -1, -1):
-        dtList[i]['host_os'] = 'CentOS Linux release 7.7.1908 (Core)'
-        if str(dtList[i]['update_time']) > timeUtil.getTime(reduce=10):
-            dtList[i]['status'] = 'online'
+        if str(dtList[i]['host_computing_time']) > nowTime:
+            dtList[i]['host_status'] = 'online'
         else:
-            dtList[i]['status'] = 'offline'
-        if isLine == "1" and dtList[i]['status'] == 'offline':
+            dtList[i]['host_status'] = 'offline'
+        if isLine == "1" and dtList[i]['host_status'] == 'offline':
             dtList.pop(i)
-        elif isLine == "2" and dtList[i]['status'] == 'online':
+        elif isLine == "2" and dtList[i]['host_status'] == 'online':
             dtList.pop(i)
     return dtList
 
 
+def hostAdd(form):
+    host_ip = form.host_ip.data
+    host_script_path = form.host_script_path.data
+    host_user = form.host_user.data
+    host_port = form.host_port.data
+    host_password = form.host_password.data
+    host_disk_path = form.host_disk_path.data
+    sshUtil = SshUtil(host=host_ip, port=host_port, userName=host_user, passWord=host_password)
+    if not sshUtil.flag:
+        return sshUtil.getMessage()
+    localFile = hostManagerConf.get('work.path') + '/light/agent/collection/agent.py'
+    flag = sshUtil.upLoadFile(localFile, host_script_path)
+    if flag:
+        sshUtil.exec_commands('chmod +x ', host_script_path)
+        hostUser = HostUserModel(host_ip, host_port, host_user, b64encode_(host_password), host_script_path,
+                                 host_disk_path)
+        HostUserModel.add(hostUser)
+        return json.dumps({'code': 200, 'status': 'Success', 'message': '{}主机添加成功'.format(host_ip)})
+    return json.dumps({'code': 201, 'status': 'Failed', 'message': '{}文件可能不存在或不是文件请查看后台日志'.format(localFile)})
+
+
 def getHostInfo(hostId):
-    if is_number(hostId):
-        res = HostInfoModel.query_by_hostsID(hostId)
-        if res is not None:
-            result = ModelUtil.toDict(res, res.__class__)
-            result['host_os'] = 'CentOS Linux release 7.7.1908 (Core)'
-            return result
-        return None
+    res = HostModel.query_by_hostsID(hostId)
+    if res is not None:
+        result = ModelUtil.toDict(res, res.__class__)
+        return result
     return None
-
-
-
 
 
 def getData():

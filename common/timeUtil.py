@@ -5,9 +5,11 @@ import time
 import datetime
 
 
+def formatTime(format='%Y-%m-%d %H:%M:%S', timestamp=time.time(), reduce=0):
+    return time.strftime(format, time.localtime(timestamp - reduce))
+
 def getTime(format='%Y-%m-%d %H:%M:%S', reduce=0):
     return time.strftime(format, time.localtime(time.time() - reduce))
-
 
 def sleep(mm):
     time.sleep(mm)
@@ -17,8 +19,5 @@ def sessionTimeOut(minutes):
     return datetime.timedelta(minutes=minutes)
 
 
-
-
-
 if __name__ == '__main__':
-    print(getTime(reduce=10) < getTime())
+    print(getTime( reduce=10) < getTime())

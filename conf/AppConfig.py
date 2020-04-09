@@ -21,3 +21,12 @@ class Config:
     PERMANENT_SESSION_LIFETIME = timeUtil.sessionTimeOut(minutes=15)
     DEBUG = True
     # DEBUG = False
+    JOBS = [
+        {
+            'id': 'agentTask', # 任务id
+            'func': '__main__:agentTask', # 任务执行程序
+            'args': None, # 执行程序参数
+            'trigger': 'interval', # 任务执行类型，定时器
+            'seconds': 20, # 任务执行时间，单位秒
+        }
+    ]

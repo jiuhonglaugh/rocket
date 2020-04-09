@@ -13,7 +13,6 @@
     <meta name="format-detection" content="telephone=no">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/x-admin.css') }}" media="all">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/page.css') }}" media="all">
-
 </head>
 <body>
 <div class="x-body">
@@ -21,7 +20,7 @@
         欢迎使用 rocket 管理平台！
     </blockquote>
     <div style="height:40px">
-        <form action="/host/hostsInfo" method="GET">
+        <form action="/host/hostsDetail" method="GET">
             <select name="line" style="height:24px; width:70px">
                 <option value="0">All</option>
                 <option value="1">On-line</option>
@@ -34,35 +33,34 @@
     <fieldset class="layui-elem-field layui-field-title site-title">
         <legend><a name="default">主机信息统计</a></legend>
     </fieldset>
-    <table class="layui-table">
+    <table class="layui-table" style="text-align: center;">
         <thead>
         <tr>
-            <th>ID</th>
-            <th>STATUS</th>
-            <th>主机名</th>
-            <th>IP</th>
-            <th>CPU核心数</th>
-            <th>内存</th>
-            <th>磁盘</th>
-            <th>服务器系统</th>
-            <th>最后上线时间</th>
+            <th style="text-align: center;">ID</th>
+            <th style="text-align: center;" title="主机是否在线">STATUS</th>
+            <th style="text-align: center;">主机名</th>
+            <th style="text-align: center;">IP</th>
+            <th style="text-align: center;" title="逻辑CPU个数">CPU核心数</th>
+            <th style="text-align: center;">总内存</th>
+            <th style="text-align: center;">磁盘</th>
+            <th style="text-align: center;">服务器系统</th>
+            <th style="text-align: center;">最后上线时间</th>
         </tr>
         </thead>
         <tbody id="aaa">
         {% for data in result %}
         <tr>
-            <td>{{data.id}}</td>
-            <!--            <td>{{data.online}}</td>-->
-            <td>{{data.status}}</td>
-            <td>
-                <a href="/host/hostInfo?hostId={{data.id}}">{{data.host_name}}</a>
+            <td>{{data.host_id}}</td>
+            <td>{{data.host_status}}</td>
+            <td title="点击查看主机详情">
+                <a href="/host/hostInfo?hostId={{data.host_id}}">{{data.host_name}}</a>
             </td>
             <td>{{data.host_ip}}</td>
-            <td>{{data.host_total_cpu}}</td>
-            <td>{{data.host_total_memory}}</td>
-            <td>{{data.host_total_disk}}</td>
-            <td>{{data.host_os}}</td>
-            <td>{{data.update_time}}</td>
+            <td>{{data.host_logic_cpu}}</td>
+            <td>{{data.host_total_memory}}GB</td>
+            <td>{{data.host_total_disk}}GB</td>
+            <td>{{data.host_os_version}}</td>
+            <td>{{data.host_computing_time}}</td>
         </tr>
         {% endfor %}
         </tbody>
@@ -88,7 +86,21 @@
 <script src="{{ url_for('static', filename='js/x-admin.js') }}"></script>
 <script src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
 <script src="{{ url_for('static', filename='js/jquery.z-pager.js') }}"></script>
+
 <script>
+if ({{isAlert}} <= 0){
+    layui.use('layer', function(){
+        var layer = layui.layer;
+        layer.msg('暂无服务器数据，是否跳转到添加主机界面', {
+            time: 1000 * 10, //1.5s后自动关闭
+            btn: ['YES', 'NO']
+            ,yes:function(){
+                window.location.href="/host/addHost";
+            }
+        });
+    });
+}
+
 $("#pager").zPager({
 	totalData: 50,
 	htmlBox: $('#wraper'),
@@ -106,6 +118,19 @@ $("#pager").zPager({
 <!--          var s = document.getElementsByTagName("script")[0];-->
 <!--          s.parentNode.insertBefore(hm, s);-->
 <!--        })();-->
+
+
+
+
+
+
+
+
+
+
+
+
+
 </script>
 </body>
 </html>

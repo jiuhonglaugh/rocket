@@ -19,6 +19,9 @@
     <blockquote class="layui-elem-quote">
         欢迎使用 rocket 管理平台！
     </blockquote>
+    <div>
+        <p>》<a style="cursor:pointer" href="javascript:void(0)" id="bind_click">返回上一页面</a></p>
+    </div>
     <fieldset class="layui-elem-field layui-field-title site-title">
         <legend><a name="default">主机信息</a></legend>
     </fieldset>
@@ -30,6 +33,10 @@
         </thead>
         <tbody>
         <tr>
+            <th width="30%">计算机ID</th>
+            <td><span id="lbServerID">{{result.host_id}}</span></td>
+        </tr>
+        <tr>
             <th width="30%">服务器计算机名</th>
             <td><span id="lbServerName">{{result.host_name}}</span></td>
         </tr>
@@ -38,60 +45,60 @@
             <td>{{result.host_ip}}</td>
         </tr>
         <tr>
-            <td>服务器域名</td>
-            <td>x.xuebingsi.com</td>
+            <td>物理CPU</td>
+            <td>{{result.host_physical_cpu}}</td>
         </tr>
         <tr>
-            <td>服务器端口</td>
-            <td>80</td>
+            <td>逻辑CPU</td>
+            <td>{{result.host_logic_cpu}}</td>
         </tr>
         <tr>
-            <td>本文件所在文件夹</td>
+            <td>CPU型号</td>
+            <td>{{result.host_model_cpu}}</td>
+        </tr>
+        <tr>
+            <td>总内存</td>
+            <td>{{result.host_total_memory / 102400}}GB</td>
+        </tr>
+        <tr>
+            <td>已使用内存</td>
+            <td>{{(result.host_total_memory - result.host_avai_memory) / 102400}}GB</td>
+        </tr>
+        <tr>
+            <td>可使用内存</td>
+            <td>{{result.host_avai_memory / 102400}}GB</td>
+        </tr>
+        <tr>
+            <td>总磁盘</td>
+            <td>{{result.host_total_disk}}GB</td>
+        </tr>
+        <tr>
+            <td>已使用磁盘</td>
+            <td>{{result.host_used_disk}}GB</td>
+        </tr>
+        <tr>
+            <td>可用磁盘</td>
+            <td>{{result.host_logic_cpu}}GB</td>
+        </tr>
+        <tr>
+            <td>系统时间</td>
+            <td>{{result.host_os_time}}</td>
+        </tr>
+        <tr>
+            <td>磁盘挂载目录</td>
             <td>D:\WebSite\HanXiPuTai.com\XinYiCMS.Web\</td>
         </tr>
         <tr>
             <td>服务器操作系统</td>
-            <td>{{result.host_os}}</td>
+            <td>{{result.host_os_version}}</td>
         </tr>
         <tr>
             <td>系统所在文件夹</td>
             <td>C:\WINDOWS\system32</td>
         </tr>
         <tr>
-            <td>服务器脚本超时时间</td>
-            <td>30000秒</td>
-        </tr>
-        <tr>
-            <td>服务器的语言种类</td>
-            <td>Chinese (People's Republic of China)</td>
-        </tr>
-        <tr>
-            <td>服务器当前时间</td>
-            <td>2017-01-01 12:06:23</td>
-        </tr>
-        <tr>
             <td>服务器上次启动到现在已运行</td>
             <td>7210分钟</td>
-        </tr>
-        <tr>
-            <td>逻辑驱动器</td>
-            <td>C:\D:\</td>
-        </tr>
-        <tr>
-            <td>CPU 总数</td>
-            <td>{{result.host_total_cpu}}</td>
-        </tr>
-        <tr>
-            <td>CPU 类型</td>
-            <td>x86 Family 6 Model 42 Stepping 1, GenuineIntel</td>
-        </tr>
-        <tr>
-            <td>虚拟内存</td>
-            <td>{{result.host_total_memory}}</td>
-        </tr>
-        <tr>
-            <td>当前程序占用内存</td>
-            <td>3.29M</td>
         </tr>
         </tbody>
     </table>
@@ -114,13 +121,12 @@
 <script src="{{ url_for('static', filename='lib/layui/layui.js') }}" charset="utf-8"></script>
 <script src="{{ url_for('static', filename='js/x-admin.js') }}"></script>
 <script>
-        var _hmt = _hmt || [];
-        (function() {
-          var hm = document.createElement("script");
-          hm.src = "https://hm.baidu.com/hm.js?b393d153aeb26b46e9431fabaf0f6190";
-          var s = document.getElementsByTagName("script")[0]; 
-          s.parentNode.insertBefore(hm, s);
-        })();
+       window.onload = function () {
+        var aEle_way1 = document.getElementById("bind_click"); // 方式1 a标签.
+        aEle_way1.onclick = function () {
+            window.history.back();
+        }
+    }
 </script>
 </body>
 </html>

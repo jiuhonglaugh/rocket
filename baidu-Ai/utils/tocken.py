@@ -1,6 +1,6 @@
-# encoding:utf-8
+#!/usr/bin/env python
+# -*- coding:utf-8 -*-
 import json
-
 import requests
 
 # client_id 为官网获取的AK， client_secret 为官网获取的SK

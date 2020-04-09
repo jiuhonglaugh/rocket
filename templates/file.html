@@ -78,7 +78,7 @@
     <form id='formPost'>
         <input type="text" name="filename" id="inputBox">
         <input type="text" name="nowPath" id="nowPath" value="/">
-         {{form.csrf_token}}
+        {{form.csrf_token}}
     </form>
     <input id="UploadInput" type="file" name="File" onchange="UploadFile()">
 </div>
@@ -144,6 +144,7 @@
                 if (item.fileType != 'dir') {
                     if (filetypes == 'pic') {
                         hem += "&#12288;<a class='layui-btn layui-btn-sm'  href='javascript:void(0);' onclick='visit()' id='" + item.fileName + "'>预览</a>&#12288;";
+                        hem += "&#12288;<a class='layui-btn layui-btn-sm'  href='javascript:void(0);' onclick='distinguish()' id='" + item.fileName + "'>识别</a>&#12288;";
                     }
                     hem += "<a class='layui-btn layui-btn-sm' href='javascript:void(0);' onclick='codeEdit()' id='" + item.fileName + "'>编辑</a>";
                     hem += "&#12288;<a class='layui-btn layui-btn-normal layui-btn-sm'  href='javascript:void(0);' onclick='DownFile()' id='" + item.fileName + "'>下载</a>";
@@ -352,6 +353,57 @@
                 });
 
             };
+            distinguish = function () {
+                editfilepath = event.srcElement.id;
+                $.ajax({
+                    type: "POST",
+                    dataType: "html",
+                    url: '/file/distinguish',
+                    data: {
+                        'filename': Base64.encode(editfilepath),
+                        'csrf_token':csrf_token
+                    },
+                    success: function (data) {
+                        code = jQuery.parseJSON(data).code
+                        if (code == '0'){
+                            result = jQuery.parseJSON(data).result
+                            content = "<div id='copyId'"
+                            for(var i=0,l=result.length;i<l;i++){
+                                for(var key in result[i]){
+                                    var trs = "<p>" + result[i][key] + "\n" +"</p>";
+                                    content += trs;
+                                }
+                            }
+                            content += "</div>"
+                            index = layer.open({
+                                type: 1,
+                                shadeClose: false,
+                                title: ['此图识别功能由：baidu-ai支持',],
+                                btn: ['复制' , '关闭'],
+                                area: ['400px','300px'],
+                                content: content,
+                                yes: function (index, layero) {
+                                    var Url2=document.getElementById("copyId").innerText;
+                                    var oInput = document.createElement('input');
+                                    oInput.value = Url2;
+                                    document.body.appendChild(oInput);
+                                    oInput.select();
+                                    document.execCommand("Copy");
+                                    oInput.className = 'oInput';
+                                    oInput.style.display='none';
+                                    alert('复制成功');
+                                    layer.close(index)
+                                },
+                                 btn2: function(index, layero){
+                                    layer.close(index)
+                                    }
+                            });
+                        }else{
+                            alert(data.result)
+                        }
+                    }
+                });
+            };
             DownFile = function () {
             	layer.msg('正在打包下载...');
                 document.getElementById("formPost").action = '/file/DownFile';
@@ -531,7 +583,7 @@
                             dataType: "html",
                             url: '/file/CreateFile',
                             data: {
-                                'fileName': Base64.encode(promptInputValue),
+                                'filename': Base64.encode(promptInputValue),
                                 'path': Base64.encode(nowPath),
                                 'csrf_token':csrf_token
                             },
@@ -761,6 +813,11 @@
                 });
             }
         });
+
+
+
+
+
 </script>
 </body>
 </html>

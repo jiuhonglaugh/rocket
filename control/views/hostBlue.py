@@ -3,18 +3,41 @@
 from flask import Blueprint, render_template, request, jsonify, url_for
 from werkzeug.utils import redirect
 from common.Logger import Logger
-from control.manager.hostManager import getDisk, getNet, getCore, getMem, getHostsInfo, getHostInfo
-from control.manager.loginManager import cklogin
+from control.form import HostForm
+from control.manager.agentManager import agentTestConn
+from control.manager.hostManager import getDisk, getNet, getCore, getMem, getHostInfo, getHostsDetail, hostAdd
 
 hostInfo_blue = Blueprint('host', __name__)
 log = Logger(loggername='hostBlue')
 
 
-@hostInfo_blue.route('/host/hostsInfo')
-def hostsInfo():
+@hostInfo_blue.route('/host/hostsDetail')
+def hostsDetail():
     isLine = request.args.get('line', '0')
-    dtList = getHostsInfo(isLine)
-    return render_template('hostsinfo.html', result=dtList), 200
+    dtList = getHostsDetail(isLine)
+    if len(dtList) <= 0:
+        return render_template('hostsinfo.html', result=dtList,
+                               isAlert=isLine), 200
+    isLine = 1
+    return render_template('hostsinfo.html', result=dtList, isAlert=isLine), 200
+
+
+@hostInfo_blue.route('/host/addHost/', methods=['GET', 'POST'])
+def addHost():
+    if request.method == 'GET':
+        form = HostForm()
+        return render_template('host-add.html', form=form)
+    else:
+        form = HostForm(request.form)
+        return hostAdd(form)
+    return 'success', 200
+
+
+@hostInfo_blue.route('/host/testConnHost', methods=['POST'])
+def testConn():
+    form = HostForm(request.form)
+    result = agentTestConn(form)
+    return result
 
 
 @hostInfo_blue.route('/host/hostInfo')

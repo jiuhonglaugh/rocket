@@ -1,25 +1,22 @@
 #!/usr/bin/env python
 # -*- coding:utf-8 -*-
-from flask import request, render_template, send_from_directory, session, make_response, Blueprint
-import time
-import json
-import os
+from flask import request, render_template, session, Blueprint
 from PIL import Image
-import zipfile
-import base64
-import chardet
 import shutil
-import traceback
-from common import extract, fileUtil
+from common import fileUtil, extract
 from common.ConfigUtil import ConfigUtil
 from common.Logger import Logger
-from forms.form import FileForm
+from common.PictureCharacterRecognition import PictureCharacterRecognition
+from control.manager.fileManager import *
+from control.form import FileForm
 
-workPath = ConfigUtil('application.properties').getDict('fiel-system').get('work.path')
-allow = ConfigUtil('application.properties').getDict('fiel-system').get('allow.jump.path', 'false').lower()
-temp = ConfigUtil('application.properties').getDict('fiel-system').get('picture.catalog')
+confDict = ConfigUtil('application.properties').getDict('fiel-system')
+workPath = confDict.get('work.path')
+allow = confDict.get('allow.jump.path', 'false').lower()
+temp = confDict.get('picture.catalog')
+
 file_blue = Blueprint('file', __name__)
-log = Logger(loggername='hostBlue')
+log = Logger(loggername='fileBlue')
 sep = os.path.sep  # 当前系统分隔符
 
 
@@ -34,76 +31,21 @@ def file():
 # 返回文件目录
 @file_blue.route('/file/GetFile', methods=['POST'])
 def GetFile():
-    try:
-        path = b64decode_(request.form['path'])
-        if not path.startswith(workPath) and 'true' != allow:
-            path = workPath
-        Files = sorted(os.listdir(path))
-        dir_ = []
-        file_ = []
-        fileQuantity = len(Files)
-        for i in Files:
-            try:
-                i = os.path.join(path, i)
-                if not os.path.isdir(i):
-                    if os.path.islink(i):
-                        fileLinkPath = os.readlink(i)
-                        file_.append({
-                            'fileName': i,
-                            'fileSize': getFileSize(i),
-                            'fileOnlyName': os.path.split(i)[1] + '-->' + fileLinkPath,
-                            'fileMODTime': time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(os.stat(i).st_mtime)),
-                            'power': oct(os.stat(i).st_mode)[-3:],
-                            'fileType': 'file'
-                        })
-                    else:
-                        file_.append({
-                            'fileName': i,
-                            'fileSize': getFileSize(i),
-                            'fileOnlyName': os.path.split(i)[1],
-                            'fileMODTime': time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(os.stat(i).st_mtime)),
-                            'power': oct(os.stat(i).st_mode)[-3:],
-                            'fileType': 'file'
-                        })
-                else:
-                    dir_.append({
-                        'fileName': i,
-                        'fileOnlyName': os.path.split(i)[1],
-                        'fileSize': getFileSize(i),
-                        'fileMODTime': time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(os.stat(i).st_mtime)),
-                        'power': oct(os.stat(i).st_mode)[-3:],
-                        'fileType': 'dir'
-                    })
-            except Exception as e:
-                print(e)
-                continue
-        returnJson = {
-            'path': base64.b64encode(path.encode()).decode(),
-            'fileQuantity': fileQuantity,
-            'files': dir_ + file_
-        }
-    except Exception as e:
-        return json.dumps({'resultCode': 1, 'result': str(traceback.format_exc())})
-    else:
-        return json.dumps({'resultCode': 0, 'result': returnJson})
+    form = FileForm(request.form)
+    path = b64decode_(form.path.data)
+    if not path.startswith(workPath) and 'true' != allow:
+        return json.dumps({'resultCode': 1, 'result': "不允许访问上层目录或其他路径"})
+    result = getFiles(path)
+    return result
 
 
 # 下载
 @file_blue.route('/file/DownFile', methods=['GET', 'POST'])
 def DownFile():
-    fileName = request.values.get('filename')
-    fileName = b64decode_(fileName)
-    if os.path.isdir(fileName):
-        result = zip_(fileList=[fileName], zipPath=os.path.split(fileName)[0])
-        if result[0]:
-            fileName = result[1]
-        else:
-            return json.dumps({'resultCode': 1, 'fileCode': str("error")})
-    response = make_response(
-        send_from_directory(os.path.split(fileName)[0], os.path.split(fileName)[1], as_attachment=True))
-    response.headers["Content-Disposition"] = "attachment; filename={}".format(
-        os.path.split(fileName)[1].encode().decode('latin-1'))
-    return response
+    form = FileForm(request.form)
+    fileName = b64decode_(form.filename.data)
+    result = DownLoadFile(fileName)
+    return result
 
 
 # 在线编辑
@@ -116,47 +58,26 @@ def codeEdit():
         return render_template('iframe/codeEdit.html', filename=fileName, form=form)
     # 返回的网页打开后,自动ajax请求该文件内容
     filename = b64decode_(request.form['path'])
-    if os.path.getsize(filename) > 2097152: return json.dumps({'resultCode': 1, 'fileCode': '不能在线编辑大于2MB的文件！'});
-    with open(filename, 'rb') as f:
-        # 文件编码,fuck you
-        srcBody = f.read()
-        char = chardet.detect(srcBody)
-        fileCoding = char['encoding']
-        if fileCoding == 'GB2312' or not fileCoding or fileCoding == 'TIS-620' or fileCoding == 'ISO-8859-9': fileCoding = 'GBK';
-        if fileCoding == 'ascii' or fileCoding == 'ISO-8859-1': fileCoding = 'utf-8';
-        if fileCoding == 'Big5': fileCoding = 'BIG5';
-        if not fileCoding in ['GBK', 'utf-8', 'BIG5']: fileCoding = 'utf-8';
-        if not fileCoding:
-            fileCoding = 'utf-8'
-        try:
-            fileCode = srcBody.decode(fileCoding).encode('utf-8')
-        except:
-            # 这一步说明文件编码不被支持,可以按需修改返回数据
-            return json.dumps({'resultCode': 0, 'fileCode': str(srcBody)})
-        else:
-            return json.dumps(
-                {'resultCode': 0, 'fileCode': fileCode.decode(), 'encoding': fileCoding, 'fileName': filename})
+    result = editing(filename)
+    return result
 
 
 # 保存编辑后的文件
 @file_blue.route('/file/saveEditCode', methods=['POST'])
 def saveEditCode():
-    editValues = b64decode_(request.form['editValues'])
-    fileName = b64decode_(request.form['fileName'])
-    try:
-        with open(fileName, 'w', encoding='utf-8') as f:
-            f.write(editValues)
-    except Exception as e:
-        return json.dumps({'resultCode': 1, 'result': str(e)})
-    else:
-        return json.dumps({'resultCode': 0, 'result': 'success'})
+    form = FileForm(request.form)
+    editValues = b64decode_(form.editValues.data)
+    fileName = b64decode_(form.filename.data)
+    result = txtSaveAs(editValues, fileName)
+    return result
 
 
 # 删除
 @file_blue.route('/file/Delete', methods=['POST'])
 def Delete():
-    fileName = b64decode_(request.values.get('filename'))
-    result = delete_(fileName)
+    form = FileForm(request.form)
+    fileName = b64decode_(form.filename.data)
+    result = deleteFileOrDir(fileName)
     if result[0]:
         return json.dumps({'resultCode': 0, 'result': 'success'})
     else:
@@ -166,8 +87,9 @@ def Delete():
 # 修改文件权限
 @file_blue.route('/file/chmod', methods=['POST'])
 def chmod():
-    fileName = b64decode_(request.values.get('filename'))
-    power = request.values.get('power')
+    form = FileForm(request.form)
+    fileName = b64decode_(form.filename.data)
+    power = form.power.data
     try:
         os.chmod(fileName, int(power, 8))
     except Exception as e:
@@ -179,84 +101,46 @@ def chmod():
 # 重命名
 @file_blue.route('/file/RenameFile', methods=['POST'])
 def RenameFile():
-    try:
-        newFileName = b64decode_(request.values.get('newFileName'))
-        oldFileName = b64decode_(request.values.get('oldFileName'))  # 原文件名,包含路径
-        filePath = os.path.split(oldFileName)[0]  # 提取路径
-        oldFileName = os.path.split(oldFileName)[1]  # 原文件名,不包含路径
-        if os.path.exists(os.path.join(filePath, newFileName)):
-            return json.dumps({'resultCode': 1, 'result': '新文件名和已有文件名重复!'})
-        else:
-            os.rename(os.path.join(filePath, oldFileName), os.path.join(filePath, newFileName))
-    except Exception as e:
-        return json.dumps({'resultCode': 1, 'result': str(e)})
-    else:
-        return json.dumps({'resultCode': 0, 'result': 'success'})
+    form = FileForm(request.form)
+    newFileName = b64decode_(form.newFileName.data)
+    oldFileName = b64decode_(form.oldFileName.data)  # 原文件名,包含路径
+    result = reNameFile(newFileName, oldFileName)
+    return result
 
 
 # 创建目录
 @file_blue.route('/file/CreateDir', methods=['POST'])
 def CreateDir():
-    try:
-        dirName = b64decode_(request.values.get('dirName'))
-        path = b64decode_(request.values.get('path'))
-        if os.path.exists(os.path.join(path, dirName)):
-            return json.dumps({'resultCode': 1, 'result': '目录已存在'})
-        else:
-            os.mkdir(os.path.join(path, dirName))
-    except Exception as e:
-        return json.dumps({'resultCode': 1, 'result': str(e)})
-    else:
-        return json.dumps({'resultCode': 0, 'result': 'success'})
+    form = FileForm(request.form)
+    dirName = b64decode_(form.dirName.data)
+    path = b64decode_(form.path.data)
+    result = createDir(path, dirName)
+    return result
 
 
 # 创建文件
 @file_blue.route('/file/CreateFile', methods=['POST'])
 def CreateFile():
-    try:
-        fileName = b64decode_(request.values.get('fileName'))
-        path = b64decode_(request.values.get('path'))
-        if os.path.exists(os.path.join(path, fileName)):
-            return json.dumps({'resultCode': 1, 'result': '文件已存在'})
-        else:
-            open(os.path.join(path, fileName), 'w', encoding='utf-8')
-    except Exception as e:
-        return json.dumps({'resultCode': 1, 'result': str(e)})
-    else:
-        return json.dumps({'resultCode': 0, 'result': 'success'})
+    form = FileForm(request.form)
+    fileName = b64decode_(form.filename.data)
+    path = b64decode_(form.path.data)
+    result = createFile(path, fileName)
+    return result
 
 
 # 批量操作
 @file_blue.route('/file/batch', methods=['POST'])
 def batch():
-    batchType = request.values.get('type')
-    selectedListBase64 = json.loads(request.values.get('selectedList'))
-    path = b64decode_(request.values.get('path'))
-    selectedList = list(b64decode_(i) for i in selectedListBase64)
-    if batchType == 'cut':
-        for cutFile in selectedList:
-            result = cut_(cutFile, path)
-            if not result[0]:
-                return json.dumps({'resultCode': 1, 'result': str(result[1])})
-        return json.dumps({'resultCode': 0, 'result': 'success'})
-    elif batchType == 'copy':
-        for copyFile in selectedList:
-            result = copy_(copyFile, path)
-            if not result[0]:
-                return json.dumps({'resultCode': 1, 'result': str(result[1])})
-        return json.dumps({'resultCode': 0, 'result': 'success'})
-    elif batchType == 'delete':
-        for i in selectedList:
-            result = delete_(i)
-            if not result[0]:
-                return json.dumps({'resultCode': 1, 'result': str(result[1])})
-        return json.dumps({'resultCode': 0, 'result': 'success'})
-    elif batchType == 'zip':
-        result = zip_(fileList=selectedList, zipPath=path)
-        if not result[0]:
-            return json.dumps({'resultCode': 1, 'result': str(result[1])})
-        return json.dumps({'resultCode': 0, 'result': 'success'})
-    return json.dumps({'resultCode': 1, 'result': '未知请求'})
+    form = FileForm(request.form)
+    batchType = form.type.data
+    selectedList = form.selectedList.data
+    path = form.path.data
+    # batchType = request.values.get('type')
+    selectedListBase64 = json.loads(selectedList)
+    # path = b64decode_(request.values.get('path'))
+    selectedList = list(b64decode_(selected) for selected in selectedListBase64)
+    result = batchOperation(batchType, selectedList, path)
+    return result
 
 
 # 图片浏览
@@ -325,6 +209,15 @@ def secectList():
     return json.dumps({'resultCode': 0, 'result': 'success'})
 
 
+@file_blue.route('/file/distinguish', methods=['POST'])
+def distinguish():
+    fileName = request.values.get('filename', None)
+    fileName = b64decode_(fileName)
+    pcr = PictureCharacterRecognition()
+    result = pcr.startRecognition(fileName)
+    return result
+
+
 # --------------API---------------#
 def delete_(fileName):
     try:
@@ -339,28 +232,6 @@ def delete_(fileName):
         return [False, e]
     else:
         return [True]
-
-
-def zip_(fileList, zipPath):
-    try:
-        if len(fileList) > 1:
-            zipName = os.path.split(zipPath)[1]
-        else:
-            zipName = os.path.split(fileList[0])[1]
-        zipName = ('根目录' if zipName == '' else zipName)
-        f = zipfile.ZipFile(os.path.join(zipPath, zipName) + '.zip', 'w', zipfile.ZIP_DEFLATED)
-        for i in fileList:
-            if os.path.isdir(i):
-                for dirpath, dirnames, filenames in os.walk(i):
-                    for filename in filenames:
-                        f.write(os.path.join(dirpath, filename))
-            else:
-                f.write(i)
-        f.close()
-    except Exception as e:
-        return [False, e]
-    else:
-        return [True, os.path.join(zipPath, zipName) + '.zip']
 
 
 def copy_(copyFile, path):
@@ -400,21 +271,6 @@ def cut_(cutFile, path):
         return [False, e]
     else:
         return [True]
-
-
-def getFileSize(filePath):
-    filesizes = ''
-    filesizeK = os.stat(filePath).st_size / 1024
-    if filesizeK > 1024:
-        filesizeM = filesizeK / 1024
-        if filesizeM > 1024:
-            filesizeG = str(round(filesizeM / 1024, 2))
-            filesizes = filesizeG + 'G'
-        else:
-            filesizes = str(round(filesizeM, 2)) + 'M'
-    else:
-        filesizes = str(round(filesizeK, 2)) + 'K'
-    return filesizes
 
 
 def b64decode_(v):
