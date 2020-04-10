@@ -1,12 +1,18 @@
 var ids='';
     loginForSSH = function () {
         data = $('#sshLoginForm').serialize();
+        layui.use(['layer'], function(){
+        $ = layui.jquery;
+        layer = layui.layer;
+        var loading = layer.load({icon: 16, shade: 0.3, time:0})
         $.ajax({
             url: '/ssh/connect',
             dataType: "html",
             type: "POST",
             data: data,
+            async: true,
             success: function (data) {
+                layer.close(loading)
                 resultCode = jQuery.parseJSON(data).resultCode;
                 if (resultCode == '0') {
                     document.getElementById('loginbox').hidden=true;
@@ -50,10 +56,29 @@ var ids='';
                    };
                     getSSHResult = setInterval(getResult,100);
                 } else {
-                    alert(jQuery.parseJSON(data).result,{title:false,skin: "layui-layer-molv",area: ["250px", "150px"],time: 10000,btn:["知道了"]})
+                    layer.open({
+                            content: jQuery.parseJSON(data).result
+                            ,title: '连接失败'
+                            ,cancel: function(){
+                                //右上角关闭回调
+                                //return false 开启该代码可禁止点击该按钮关闭
+                            }
+                        });
+//                    alert(jQuery.parseJSON(data).result,{title:false,skin: "layui-layer-molv",area: ["250px", "150px"],time: 10000,btn:["知道了"]})
                 };
-            }
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    layer.close(loading)
+                    layer.open({
+                        content: '服务器异常或者主机列表中已存在请检查主机列表或稍后再试'
+                        ,cancel: function(){
+                            //右上角关闭回调
+                            //return false 开启该代码可禁止点击该按钮关闭
+                        }
+                    });
+　　            }
         })
+        });
         return false;
 };
 function keyLogin(){
