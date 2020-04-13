@@ -39,7 +39,7 @@ def sshConnect(host, port, username, pwd):
     except paramiko.BadHostKeyException:
         return json.dumps({'resultCode': 1, 'result': '登录失败,请检查IP'})
     except:
-        return json.dumps({'resultCode': 1, 'result': '登录失败'})
+        return json.dumps({'resultCode': 1, 'result': '未知错误,登录失败'})
     else:
         sshTimeout[ids] = time.time()
         return json.dumps({'resultCode': 0, 'ids': ids})

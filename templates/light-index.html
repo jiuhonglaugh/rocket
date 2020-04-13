@@ -21,69 +21,70 @@
     </blockquote>
     <div>
         <div align="lift">
-            <table class="layui-table">
-                <thead>
-                <tr>
-                    <th colspan="2" scope="col">Mysql</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr>
-                    <th width="30%">主机地址</th>
-                    <td><span id="mysqlServerID">id</span></td>
-                </tr>
-                <tr>
-                    <th width="30%">服务器计算机名</th>
-                    <td><span id="mysqlServerName">123</span></td>
-                </tr>
-                <tr>
-                    <td>服务器IP地址</td>
-                    <td>123</td>
-                </tr>
-                <tr>
-                    <td>物理CPU</td>
-                    <td>123</td>
-                </tr>
-                <tr>
-                    <td>逻辑CPU</td>
-                    <td>123</td>
-                </tr>
-                </tbody>
-            </table>
+            <form>
+                <table class="layui-table" id="table-input">
+                    <thead>
+                    <tr>
+                        <th colspan="2" scope="col">Mysql</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <th width="30%" title="支持主机映射名">IP</th>
+                        <td><span id="mysql-ip">0.0.0.0</span></td>
+                    </tr>
+                    <tr>
+                        <th width="30%">Port</th>
+                        <td><span id="mysql-port">3306</span></td>
+                    </tr>
+                    <tr>
+                        <th width="30%">User</th>
+                        <td><span id="mysql-user">wxgz</span></td>
+                    </tr>
+                    <tr>
+                        <th width="30%">PassWord</th>
+                        <td><span id="mysql-pwd">******</span></td>
+                    </tr>
+                    <tr>
+                        <th width="30%">Parameter</th>
+                        <td><span
+                                id="mysql-param">/dbName?useUnicode=true&amp;characterEncoding=UTF-8&useSSL=false</span>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+                <button class="layui-btn layui-btn-normal">TestConn</button>
+            </form>
         </div>
-        <div align="right">
-            <!--            <fieldset class="layui-elem-field layui-field-title site-title">-->
-            <!--                <legend><a name="default">添加 Redis</a></legend>-->
-            <!--            </fieldset>-->
-            <table class="layui-table">
-                <thead>
-                <tr>
-                    <th colspan="2" scope="col">Redis</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr>
-                    <th width="30%">Redis服务器主机地址</th>
-                    <td><span id="redisServerID">id</span></td>
-                </tr>
-                <tr>
-                    <th width="30%">服务器计算机名</th>
-                    <td><span id="redisServerName">123</span></td>
-                </tr>
-                <tr>
-                    <td>服务器IP地址</td>
-                    <td>123</td>
-                </tr>
-                <tr>
-                    <td>物理CPU</td>
-                    <td>123</td>
-                </tr>
-                <tr>
-                    <td>逻辑CPU</td>
-                    <td>123</td>
-                </tr>
-                </tbody>
-            </table>
+        <div align="lift">
+            <form>
+                <table class="layui-table">
+                    <thead>
+                    <tr>
+                        <th colspan="2" scope="col">Redis</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <th width="30%" title="支持主机映射名">IP</th>
+                        <td><span id="redis-ip">0.0.0.0</span></td>
+                    </tr>
+                    <tr>
+                        <th width="30%">Port</th>
+                        <td><span id="redis-port">6379</span></td>
+                    </tr>
+                    <tr>
+                        <th width="30%">Cluster</th>
+                        <td><span id="redis-cluster">0.0.0.0:9000,0.0.0.1:9001,0.0.0.2:9002</span></td>
+                    </tr>
+                    <tr>
+                        <th width="30%">PassWord</th>
+                        <td><span id="redis-pwd">******</span></td>
+                    </tr>
+                    </tbody>
+                </table>
+                <button class="layui-btn layui-btn-normal">TestConn</button>
+            </form>
         </div>
     </div>
 </div>
@@ -106,6 +107,20 @@
 <script src="{{ url_for('static', filename='js/x-admin.js') }}"></script>
 <script src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
 <script>
+$(document).ready(function() {
+    var tds = $("td");
+    tds.click(tdclick);
+    tds.mouseout(close)
+});
+function tdclick() {
+    var td = $(this);
+    td.attr('contenteditable','true');
+}
+function close(){
+    var td = $(this);
+    td.attr('contenteditable','false');
+}
+
 
 </script>
 </body>

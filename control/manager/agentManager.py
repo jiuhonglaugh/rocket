@@ -62,13 +62,14 @@ def agentTestConn(form):
     host_user = form.host_user.data
     host_port = form.host_port.data
     host_password = form.host_password.data
+    tmpFile = host_script_path + '_bak'
     sshUtil = SshUtil(host=host_ip, port=host_port, userName=host_user, passWord=host_password)
     if not sshUtil.flag:
         return sshUtil.getMessage()
-    stdin, stdout, stderr = sshUtil.exec_commands('touch', host_script_path)
+    stdin, stdout, stderr = sshUtil.exec_commands('touch', tmpFile)
     errStr = stderr.read().decode(encoding='utf-8')
     if errStr is not "":
         return {'code': 201, 'data': errStr}
-    sshUtil.exec_commands('rm -rf', host_script_path)
+    sshUtil.exec_commands('rm -rf', tmpFile)
     sshUtil.close()
     return {'code': 200, 'data': 'success'}
