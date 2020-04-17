@@ -37,6 +37,7 @@ class HostUserModel(db.Model, UserMixin):
 
     def __repr__(self):
         return '<HostInfo:%s>' % self.id
-    def add(hostUser):
-        db.session.add(hostUser)
+
+    def add(source):
+        db.session.add(source)
         db.session.commit()

@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>
+        主机信息
+    </title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/x-admin.css') }}" media="all">
+</head>
+<body>
+<div class="x-body">
+    <blockquote class="layui-elem-quote">
+        欢迎使用 rocket 管理平台！
+    </blockquote>
+    <div>
+        <div align="lift">
+            <form class="layui-form" action="" id="layui-form" method="POST">
+                <table class="layui-table" id="table-input">
+                    {{form.csrf_token}}
+                    <thead>
+                    <tr>
+                        <th colspan="2" scope="col" title="添加Redis数据库">Redis</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <th width="30%" title="Redis 服务器Ip地址支持主机映射名">IP</th>
+                        <td>
+                            <input hidden="" id="redisHost" name="redisHost" lay-verify="redisHost">172.10.4.100:6379
+                        </td>
+                    </tr>
+                    <tr>
+                        <th width="30%" title="Redis 密码">PassWord</th>
+                        <td>
+                            <input hidden="" lay-verify="redisPwd" id="redisPwd" name="redisPwd">rocketWeb2020
+                        </td>
+                    </tr>
+                    <tr>
+                        <th width="30%" title="Redis 数据库名称">DbName</th>
+                        <td>
+                            <input hidden="" lay-verify="number" lay-filter="redisDbName" name="redisDbName">0
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+                <button lay-submit="" id="testAndSave" lay-filter="testAndSave" class="layui-btn">Test and Save
+                </button>
+                <a href="/light/add-es"><input type="button" class="layui-btn layui-btn-normal" id="next" value="Next"></a>
+            </form>
+        </div>
+    </div>
+</div>
+<script src="{{ url_for('static', filename='lib/layui/layui.js') }}" charset="utf-8"></script>
+<script src="{{ url_for('static', filename='js/x-layui.js') }}" charset="utf-8"></script>
+<script src="{{ url_for('static', filename='js/x-admin.js') }}"></script>
+<script src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/light-add-db.js') }}"></script>
+<script>
+
+function nextPage(){
+    window.location.href="/light/add-es";
+}
+layui.use(['form','layer'], function(){
+        $ = layui.jquery;
+        var form = layui.form()
+        ,layer = layui.layer;
+        //自定义验证规则
+        form.verify({
+            redisHost: function(value){
+                if(value.length <= 0){
+                    return '主机地址不能为空';
+                }
+            }
+            ,redisPwd: [/(.+){4,12}$/, '密码必须4到20位']
+            });
+        //监听提交
+        form.on('submit(testAndSave)', function(tmp){
+            data = $('#layui-form').serialize()
+            var loading = layer.load({icon: 16, shade: 0.3, time:0})
+            $.ajax({
+                url: "/light/add-redis",
+                type: "POST",    //提交方式
+                data: data,
+                dataType: "json",
+                async: true,
+                contentType: "application/x-www-form-urlencoded; charset=utf-8",
+                success:(function (data) {
+                    layer.close(loading)
+                    if (data.code != 200 ){
+                        layer.open({
+                            content: data.message
+                            ,title: data.status
+                            ,cancel: function(){
+                                //右上角关闭回调
+                                //return false 开启该代码可禁止点击该按钮关闭
+                            }
+                        });
+                    }else{
+                        layer.close(loading)
+                        $("#next").show();
+                        layer.open({
+                            content: data.message
+                            ,title: data.status
+                            ,cancel: function(){
+                                //右上角关闭回调
+                                //return false 开启该代码可禁止点击该按钮关闭
+                            }
+                        });
+                    }
+                }),
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    layer.close(loading)
+                    layer.open({
+                        content: '服务器异常或者主机列表中已存在请检查主机列表或稍后再试'
+                        ,cancel: function(){
+                            //右上角关闭回调
+                            //return false 开启该代码可禁止点击该按钮关闭
+                        }
+                    });
+　　            }
+            })
+            return false;
+        });
+    });
+</script>
+</body>
+</html>

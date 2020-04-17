@@ -27,6 +27,18 @@ class HostForm(FlaskForm):
     host_script_path = StringField('What is your name?', validators=[DataRequired()])
     host_disk_path = StringField('What is your name?', validators=[DataRequired()])
 
+class MysqlForm(FlaskForm):
+    mysqlHost = StringField('What is your name?', validators=[DataRequired()])
+    mysqlPort = IntegerField('mysqlPort')
+    mysqlUser = StringField('What is your name?', validators=[DataRequired()])
+    mysqlPwd = StringField('What is your name?', validators=[DataRequired()])
+    mysqlDbName = StringField('What is your name?', validators=[DataRequired()])
+    mysqlParam = StringField('What is your name?', validators=[DataRequired()])
+
+class RedisForm(FlaskForm):
+    redisHost = StringField('What is your name?', validators=[DataRequired()])
+    redisPwd = StringField('What is your name?', validators=[DataRequired()])
+    redisDbName = StringField('What is your name?', validators=[DataRequired()])
 
 class NameForm(FlaskForm):
     username = StringField('What is your name?', validators=[DataRequired()])
