@@ -22,11 +22,7 @@ function tdclick() {
 
 function close(){
     var td = $(this);
-//    tmp =
-//    if (tmp == ""){
-//        tmp = "1"
-//    }
-    td.children('input').val(td.text().trim());
-    alert(td.text())
+    tmp = td.text().trim()
+    td.children('input').val(tmp)
     td.attr('contenteditable','false');
 }

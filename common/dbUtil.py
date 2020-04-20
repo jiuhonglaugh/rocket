@@ -102,15 +102,15 @@ class RedisUtil:
 
     def getConn(self):
         if self.__isCluster():
-            return self.__getRedisClusterConn(self.redisNodes)
+            return self.__getRedisClusterConn()
         else:
             return self.__getRedisConn()
 
     def __getRedisClusterConn(self):
         try:
-            return RedisCluster(startup_nodes=self.redisNodes, db=self.dbName)
-        except:
-            print('error')
+            return RedisCluster(startup_nodes=self.redisNodes, password=self.password, decode_responses=True)
+        except Exception as e:
+            print(e.with_traceback(None))
 
     def __getRedisConn(self):
         hostAndPort = self.host.split(':')
@@ -128,9 +128,9 @@ class RedisUtil:
 
 
 if __name__ == '__main__':
-    host = '172.10.4.100:6379'
-    auth = 'infobeat'
-    redisUtil = RedisUtil(host, auth,1)
+    host = '172.10.10.120:9000,172.10.10.121:9001,172.10.10.122:9001'
+    auth = '4rGhQpgkPRzS'
+    redisUtil = RedisUtil(host, auth, 1)
     if redisUtil.isAvailable():
         print(True)
     else:

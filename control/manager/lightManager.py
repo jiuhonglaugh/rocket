@@ -46,6 +46,8 @@ def testAndSaveRedis(form):
                 redisSource = DBSourceModel(type, host, pwd, dbName)
                 DBSourceModel.add(redisSource)
                 result = {'code': 200, 'status': '成功', 'message': '成功连接Redis并保存'}
+            else:
+                result = {'code': 200, 'status': '失败', 'message': '成功连接Redis但未保存，数据库中已存在redis数据源'}
         else:
             result = {'code': 201, 'status': '失败', 'message': str(redisUtil.errorMessage)}
     except Exception as e:
