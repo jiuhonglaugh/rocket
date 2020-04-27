@@ -40,6 +40,12 @@ class RedisForm(FlaskForm):
     redisPwd = StringField('What is your name?', validators=[DataRequired()])
     redisDbName = StringField('What is your name?', validators=[DataRequired()])
 
+class EsForm(FlaskForm):
+    EsHost = StringField('What is your name?', validators=[DataRequired()])
+    EsUser = StringField('What is your name?', validators=[DataRequired()])
+    EsPwd = StringField('What is your name?', validators=[DataRequired()])
+    EsClusterName = StringField('What is your name?', validators=[DataRequired()])
+
 class NameForm(FlaskForm):
     username = StringField('What is your name?', validators=[DataRequired()])
     password = StringField('What is your name?', validators=[DataRequired()])

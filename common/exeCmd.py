@@ -24,7 +24,7 @@ def check_call(cmd):
 '''
 
 
-def getoutput(cmd):
+def getOutput(cmd):
     return sbp.getoutput(cmd)
 
 
@@ -33,7 +33,7 @@ def getoutput(cmd):
 '''
 
 
-def getstatusgetoutput(cmd):
+def getStatusOutput(cmd):
     return sbp.getstatusoutput(cmd)
 
 

@@ -27,6 +27,14 @@ class DBSourceModel(db.Model, UserMixin):
         self.source_host = source_host
         self.source_pwd = source_pwd
         self.source_parm = source_parm
+
+    def __init__(self,source_type,source_host,source_user,source_pwd,source_parm):
+        self.source_type = source_type
+        self.source_host = source_host
+        self.source_user = source_user
+        self.source_pwd = source_pwd
+        self.source_parm = source_parm
+
     @staticmethod
     def query_by_sourceType(source_type):
         return DBSourceModel.query.filter(DBSourceModel.source_type == source_type).first()

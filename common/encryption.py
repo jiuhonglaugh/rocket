@@ -19,3 +19,7 @@ def b64decode_(v):
         # 网页传来的base64内容,在被flask捕捉的时候,加号会被解码成空格,导致解码报错
         # 这个bug调了我半个小时,我还以为前端js生成的base64有问题,fuck
         return base64.b64decode(v.replace(' ', '+')).decode()
+
+if __name__ == '__main__':
+    pwd = 'rocketWeb2020'
+    print(b64encode_(pwd))

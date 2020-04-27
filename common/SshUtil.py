@@ -48,6 +48,7 @@ class SshUtil:
     def exec_commands(self, commond, args):
         'this is use the conn to excute the cmd and return the results of excute the command'
         cmd = '%s %s' % (commond, args)
+        print(cmd)
         return self.__conn.exec_command(cmd)
 
     def close(self):

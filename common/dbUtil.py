@@ -1,10 +1,10 @@
 #!/usr/bin/python3
 # -*- encoding:utf-8 -*-
-
+import json
 import sys
 import redis
+from elasticsearch import Elasticsearch
 from rediscluster import RedisCluster
-from sqlalchemy.dialects.mysql import pymysql
 from common.ConfigUtil import ConfigUtil
 from common.Logger import Logger
 from contextlib import contextmanager
@@ -44,14 +44,6 @@ def getDBURI():
         dicts.get('db.name'))
     return uri
 
-
-def testConnMysql(host, port):
-    conn = pymysql.connect(
-        host="你的数据库地址",
-        user="用户名",
-        password="密码",
-        database="数据库名",
-        charset="utf8")
 
 
 class SqlSession:
@@ -127,11 +119,47 @@ class RedisUtil:
         return False
 
 
+class ElasticsearchUtil:
+    """
+    sniff_on_start  启动前嗅探es集群服务器
+
+    """
+
+    def __init__(self, host, user, pwd, clusterName):
+        self.host = host
+        self.user = user
+        self.pwd = pwd
+        self.clusterName = clusterName
+        self.isConn = False
+        self.__conn = self.__ConnEs()
+
+    def __ConnEs(self):
+        try:
+            conn = Elasticsearch(self.host.split(','), http_auth=(self.user, self.pwd), sniff_on_start=True,
+                                 sniff_on_connection_fail=True, sniffer_timeout=60)
+            self.isConn = True
+            return conn
+        except Exception as e:
+            self.errorMessage = str(e.with_traceback(None))
+        return None
+
+    def getClusterHealth(self):
+        return json.dumps(self.__conn.cluster.health())
+
+    def getClusterStats(self):
+        return json.dumps(self.__conn.cluster.stats())
+
+    def catClusterNodes(self):
+        return self.__conn.cat.nodes()
+
+
 if __name__ == '__main__':
-    host = '172.10.10.120:9000,172.10.10.121:9001,172.10.10.122:9001'
-    auth = '4rGhQpgkPRzS'
-    redisUtil = RedisUtil(host, auth, 1)
-    if redisUtil.isAvailable():
-        print(True)
+    host = '172.10.4.100:9200,172.10.4.101:9200,172.10.4.102:9200'
+    user = 'elastic'
+    pwd = 'infobeat123'
+    clusterName = 'infobeat123'
+    es = ElasticsearchUtil(host, user, pwd, clusterName)
+    if es.isConn:
+        print(es.getClusterHealth())
     else:
-        print(redisUtil.errorMessage)
+        print(es.errorMessage)

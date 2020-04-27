@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # -*- coding:utf-8 -*-
 import json
-import random
 import time
 from common.SshUtil import SshUtil
 from common.encryption import b64decode_

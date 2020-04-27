@@ -5,8 +5,8 @@ import json
 from flask import Blueprint, render_template, request, jsonify, url_for
 from werkzeug.utils import redirect
 from common.Logger import Logger
-from control.form import MysqlForm, RedisForm
-from control.manager.lightManager import testAndSaveMysql, testAndSaveRedis
+from control.form import MysqlForm, RedisForm, EsForm
+from control.manager.lightManager import testAndSaveMysql, testAndSaveRedis, testAndSaveEs
 
 light_blue = Blueprint('light', __name__)
 log = Logger(loggername='lightBlue')
@@ -30,4 +30,14 @@ def lightAddRedis():
     else:
         form = RedisForm(request.form)
         result = testAndSaveRedis(form)
+        return result
+
+@light_blue.route('/light/add-es', methods=['GET', 'POST'])
+def lightAddEs():
+    if request.method == 'GET':
+        form = EsForm(request.form)
+        return render_template('light-add-es.html', form=form)
+    else:
+        form = EsForm(request.form)
+        result = testAndSaveEs(form)
         return result

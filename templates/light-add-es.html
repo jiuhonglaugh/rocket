@@ -25,33 +25,38 @@
                     {{form.csrf_token}}
                     <thead>
                     <tr>
-                        <th colspan="2" scope="col" title="添加Redis数据库">Redis</th>
+                        <th colspan="2" scope="col" title="添加 Elasticsearch 集群">Elasticsearch</th>
                     </tr>
                     </thead>
                     <tbody>
                     <tr>
-                        <th width="30%" title="Redis 服务器Ip地址支持主机映射名">IP</th>
+                        <th width="30%" title="Elasticsearch 服务器Ip地址支持主机映射名">IP</th>
                         <td>
-                            <input hidden="" id="redisHost" value="1" name="redisHost" lay-verify="redisHost">172.10.4.100:6379
+                            <input hidden="" id="EsHost" name="EsHost" lay-verify="EsHost">39.107.203.67:9200
                         </td>
                     </tr>
                     <tr>
-                        <th width="30%" title="Redis 密码">PassWord</th>
+                        <th width="30%" title="Elasticsearch 用户名">User</th>
                         <td>
-                            <input hidden="" lay-verify="redisPwd" id="redisPwd" name="redisPwd">rocketWeb2020
+                            <input hidden="" id="EsUser" name="EsUser" lay-verify="EsUser">elastic
                         </td>
                     </tr>
                     <tr>
-                        <th width="30%" title="Redis 数据库名称">DbName</th>
+                        <th width="30%" title="Elasticsearch 密码">PassWord</th>
                         <td>
-                            <input hidden="" id="redisDbName" lay-verify="redisDbName" lay-filter="redisDbName" name="redisDbName">0
+                            <input hidden="" id="EsPwd" type="password" id="EsPwd" lay-verify="EsPwd" name="EsPwd">infobeat123
+                        </td>
+                    </tr>
+                    <tr>
+                        <th width="30%" title="Elasticsearch 集群名称">Cluster Name</th>
+                        <td>
+                            <input hidden="" lay-verify="EsClusterName" lay-filter="EsClusterName" name="EsClusterName">es-cluster
                         </td>
                     </tr>
                     </tbody>
                 </table>
-                <button lay-submit="" id="testAndSave" lay-filter="testAndSave" class="layui-btn">Test and Save
-                </button>
-                <a href="/light/add-mysql"><input type="button" class="layui-btn layui-btn-normal" id="next" value="Next"></a>
+                <button lay-submit="" id="testAndSave" lay-filter="testAndSave" class="layui-btn">Test and Save</button>
+                <a href="/light/add-redis"><input type="button" class="layui-btn layui-btn-normal" id="next" value="Next"></a>
             </form>
         </div>
     </div>
@@ -62,39 +67,35 @@
 <script src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
 <script src="{{ url_for('static', filename='js/light-add-db.js') }}"></script>
 <script>
-
-function nextPage(){
-    window.location.href="/light/add-es";
-}
 layui.use(['form','layer'], function(){
         $ = layui.jquery;
         var form = layui.form()
         ,layer = layui.layer;
         //自定义验证规则
         form.verify({
-            redisHost: function(value){
+            EsHost: function(value){
                 if(value.length <= 0){
                     return '主机地址不能为空';
                 }
             }
-            ,redisPwd: [/(.+){4,12}$/, '密码必须4到20位']
-            ,redisDbName: function(value){
-                if(value === "" || value ==null){
-                    return "只能填1到两位数字";
-　　            }
-                if(!isNaN(value)){
-            　　
-　　            } else {
-　　　　             return "只能填1到两位数字";
-　　            }
+            ,EsClusterName: function(value){
+                if(value.length <= 0){
+                    return '集群名称不能为空';
+                }
             }
+            ,EsUser: function(value){
+                if(value.length <= 0){
+                    return '用户名不能为空';
+                }
+            }
+            ,EsPwd: [/(.+){4,12}$/, '密码必须4到20位']
             });
         //监听提交
         form.on('submit(testAndSave)', function(tmp){
             data = $('#layui-form').serialize()
             var loading = layer.load({icon: 16, shade: 0.3, time:0})
             $.ajax({
-                url: "/light/add-redis",
+                url: "/light/add-es",
                 type: "POST",    //提交方式
                 data: data,
                 dataType: "json",

@@ -16,10 +16,10 @@ def A():
     print("函数A睡了十秒钟。。。。。。")
     print("a function")
 
-
 def B():
     print("b function")
 
 
 if __name__ == '__main__':
-    print('"')
+    url = "curl -u elastic:infobeat123 http://node2:9200/_cat/nodes -XGET"
+    print(url)

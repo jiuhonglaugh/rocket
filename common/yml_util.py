@@ -9,5 +9,5 @@ def load(filePath):
 
 
 def saveWrite(dicts, filePath):
-    with open(filePath, "w", encoding='utf-8')as f:
+    with open(filePath, "w", encoding='utf-8') as f:
         yaml.dump(dicts, f)
