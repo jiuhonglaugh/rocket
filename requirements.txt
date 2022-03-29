@@ -15,7 +15,7 @@ idna==2.9
 itsdangerous==1.1.0
 Jinja2==2.11.1
 MarkupSafe==1.1.1
-paramiko==2.7.1
+paramiko==2.10.1
 Pillow==7.1.1
 pipreqs==0.4.10
 pycparser==2.20
